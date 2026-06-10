@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 th:text="'Results: ' + ${round.name}">results</h1>
+    <a th:href="@{/rounds/{id}(id=${round.id})}" class="btn btn-secondary mb-3">Back</a>
+
+    <form action="#" th:action="@{/results/generate/{roundId}(roundId=${round.id})}" method="post" class="mb-3">
+        <button type="submit" class="btn btn-warning">Generate Ao5 Results</button>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Competitor</th>
+            <th>Best Time (ms)</th>
+            <th>Average (ms)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${results}">
+            <td th:text="${r.rank}">rank</td>
+            <td th:text="${r.competitor.name}">name</td>
+            <td th:text="${r.bestTime}">best</td>
+            <td th:text="${r.averageTime}">avg</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
