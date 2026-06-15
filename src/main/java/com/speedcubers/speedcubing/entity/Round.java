@@ -28,10 +28,10 @@ public class Round {
     private Category category;
 
     @JsonManagedReference("round-solves")
-    @OneToMany(mappedBy = "round", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = Solve_.ROUND, cascade = CascadeType.ALL)
     private List<Solve> solves;
 
     @JsonManagedReference("round-results")
-    @OneToMany(mappedBy = "round", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = Result_.ROUND, cascade = CascadeType.ALL)
     private List<Result> results;
 }

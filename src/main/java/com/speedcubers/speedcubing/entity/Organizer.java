@@ -23,6 +23,6 @@ public class Organizer {
     private String email;
 
     @JsonManagedReference("organizer-competitions")
-    @OneToMany(mappedBy = "organizer")
+    @OneToMany(mappedBy = Competition_.ORGANIZER)
     private List<Competition> competitions;
 }

@@ -11,15 +11,15 @@
     <a href="/" class="btn btn-secondary mb-3">Back</a>
 
     <h3>Add Organizer</h3>
-    <form action="#" th:action="@{/organizers}" method="post" class="row g-3 mb-4">
+    <form action="#" th:action="@{/organizers}" th:object="${form}" method="post" class="row g-3 mb-4">
         <div class="col-auto">
-            <input type="text" name="firstName" class="form-control" placeholder="First name" required>
+            <input type="text" th:field="*{firstName}" class="form-control" placeholder="First name" required>
         </div>
         <div class="col-auto">
-            <input type="text" name="lastName" class="form-control" placeholder="Last name" required>
+            <input type="text" th:field="*{lastName}" class="form-control" placeholder="Last name" required>
         </div>
         <div class="col-auto">
-            <input type="email" name="email" class="form-control" placeholder="Email" required>
+            <input type="email" th:field="*{email}" class="form-control" placeholder="Email" required>
         </div>
         <div class="col-auto">
             <button type="submit" class="btn btn-primary">Add</button>

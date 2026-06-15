@@ -26,14 +26,14 @@ public class Competitor {
     private String country;
 
     @JsonManagedReference("competitor-solves")
-    @OneToMany(mappedBy = "competitor", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = Solve_.COMPETITOR, cascade = CascadeType.ALL)
     private List<Solve> solves;
 
     @JsonManagedReference("competitor-results")
-    @OneToMany(mappedBy = "competitor", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = Result_.COMPETITOR, cascade = CascadeType.ALL)
     private List<Result> results;
 
     @JsonManagedReference("competitor-registrations")
-    @OneToMany(mappedBy = "competitor", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = Registration_.COMPETITOR, cascade = CascadeType.ALL)
     private List<Registration> registrations;
 }

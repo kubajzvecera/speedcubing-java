@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import com.speedcubers.speedcubing.dto.*; // CompetitionFormDTO, CategoryFormDTO, OrganizerFormDTO, CompetitorFormDTO, RoundFormDTO, RegistrationFormDTO, SolveFormDTO
 import com.speedcubers.speedcubing.entity.Result;
 
 @Controller
@@ -53,24 +54,22 @@ public class WebController {
         model.addAttribute("competitions", competitionService.findAll());
         model.addAttribute("organizers", organizerRepository.findAll());
         model.addAttribute("allCategories", categoryRepository.findAll());
+        model.addAttribute("form", new CompetitionFormDTO());
         return "competitions";
     }
 
     @PostMapping("/competitions")
-    public String createCompetition(@RequestParam String name, @RequestParam LocalDate date,
-                                    @RequestParam String location, @RequestParam(required = false) LocalDate endDate,
-                                    @RequestParam(required = false) Long organizerId,
-                                    @RequestParam(required = false) List<Long> categoryIds) {
+    public String createCompetition(@ModelAttribute CompetitionFormDTO form) {
         Competition competition = new Competition();
-        competition.setName(name);
-        competition.setDate(date);
-        competition.setLocation(location);
-        competition.setEndDate(endDate);
-        if (organizerId != null) {
-            competition.setOrganizer(organizerRepository.findById(organizerId).orElse(null));
+        competition.setName(form.getName());
+        competition.setDate(form.getDate());
+        competition.setLocation(form.getLocation());
+        competition.setEndDate(form.getEndDate());
+        if (form.getOrganizerId() != null) {
+            competition.setOrganizer(organizerRepository.findById(form.getOrganizerId()).orElse(null));
         }
-        if (categoryIds != null) {
-            competition.setCategories(categoryRepository.findAllById(categoryIds));
+        if (form.getCategoryIds() != null) {
+            competition.setCategories(categoryRepository.findAllById(form.getCategoryIds()));
         }
         competitionService.create(competition);
         return "redirect:/competitions";
@@ -83,6 +82,7 @@ public class WebController {
         model.addAttribute("competition", competition);
         model.addAttribute("organizers", organizerRepository.findAll());
         model.addAttribute("competitors", competitorRepository.findAll());
+        model.addAttribute("roundForm", new RoundFormDTO());
 
         Map<Long, List<Result>> resultsByRound = new HashMap<>();
         if (competition.getCategories() != null) {
@@ -114,13 +114,14 @@ public class WebController {
     @GetMapping("/categories")
     public String categories(Model model) {
         model.addAttribute("categories", categoryRepository.findAll());
+        model.addAttribute("form", new CategoryFormDTO());
         return "categories";
     }
 
     @PostMapping("/categories")
-    public String addCategory(@RequestParam String name) {
+    public String addCategory(@ModelAttribute CategoryFormDTO form) {
         Category category = new Category();
-        category.setName(name);
+        category.setName(form.getName());
         categoryRepository.save(category);
         return "redirect:/categories";
     }
@@ -134,17 +135,15 @@ public class WebController {
     // ---- Rounds ----
 
     @PostMapping("/categories/{id}/rounds")
-    public String addRound(@PathVariable Long id, @RequestParam String name,
-                           @RequestParam int roundNumber,
-                           @RequestParam Long competitionId) {
+    public String addRound(@PathVariable Long id, @ModelAttribute RoundFormDTO form) {
         Round round = new Round();
-        round.setName(name);
-        round.setRoundNumber(roundNumber);
+        round.setName(form.getName());
+        round.setRoundNumber(form.getRoundNumber());
         Category category = categoryRepository.findById(id).orElse(null);
         if (category == null) return "redirect:/competitions";
         round.setCategory(category);
         roundRepository.save(round);
-        return "redirect:/competitions/" + competitionId;
+        return "redirect:/competitions/" + form.getCompetitionId();
     }
 
     @GetMapping("/rounds/{id}")
@@ -164,17 +163,15 @@ public class WebController {
         }
         model.addAttribute("solves", solveService.getSolvesByRound(id));
         model.addAttribute("hasResults", !resultRepository.findByRound(round).isEmpty());
+        model.addAttribute("solveForm", new SolveFormDTO());
         return "round-detail";
     }
 
     @PostMapping("/rounds/{id}/solves")
-    public String addSolve(@PathVariable Long id, @RequestParam Long competitorId,
-                           @RequestParam int timeMs,
-                           @RequestParam(required = false) String penalty,
-                           @RequestParam(required = false) Long competitionId) {
-        solveService.addSolve(id, competitorId, timeMs, penalty);
-        if (competitionId != null) {
-            return "redirect:/rounds/" + id + "?competitionId=" + competitionId;
+    public String addSolve(@PathVariable Long id, @ModelAttribute SolveFormDTO form) {
+        solveService.addSolve(id, form.getCompetitorId(), form.getTimeMs(), form.getPenalty());
+        if (form.getCompetitionId() != null) {
+            return "redirect:/rounds/" + id + "?competitionId=" + form.getCompetitionId();
         }
         return "redirect:/rounds/" + id;
     }
@@ -216,16 +213,16 @@ public class WebController {
     @GetMapping("/organizers")
     public String organizers(Model model) {
         model.addAttribute("organizers", organizerRepository.findAll());
+        model.addAttribute("form", new OrganizerFormDTO());
         return "organizers";
     }
 
     @PostMapping("/organizers")
-    public String addOrganizer(@RequestParam String firstName, @RequestParam String lastName,
-                               @RequestParam String email) {
+    public String addOrganizer(@ModelAttribute OrganizerFormDTO form) {
         Organizer organizer = new Organizer();
-        organizer.setFirstName(firstName);
-        organizer.setLastName(lastName);
-        organizer.setEmail(email);
+        organizer.setFirstName(form.getFirstName());
+        organizer.setLastName(form.getLastName());
+        organizer.setEmail(form.getEmail());
         organizerRepository.save(organizer);
         return "redirect:/organizers";
     }
@@ -241,21 +238,18 @@ public class WebController {
     @GetMapping("/competitors")
     public String competitors(Model model) {
         model.addAttribute("competitors", competitorRepository.findAll());
+        model.addAttribute("form", new CompetitorFormDTO());
         return "competitors";
     }
 
     @PostMapping("/competitors")
-    public String addCompetitor(@RequestParam String firstName, @RequestParam String lastName,
-                                @RequestParam(required = false) String email,
-                                @RequestParam(required = false) String birthDate,
-                                @RequestParam String country) {
+    public String addCompetitor(@ModelAttribute CompetitorFormDTO form) {
         Competitor competitor = new Competitor();
-        competitor.setFirstName(firstName);
-        competitor.setLastName(lastName);
-        competitor.setEmail(email);
-        if (birthDate != null && !birthDate.isEmpty())
-            competitor.setBirthDate(LocalDate.parse(birthDate));
-        competitor.setCountry(country);
+        competitor.setFirstName(form.getFirstName());
+        competitor.setLastName(form.getLastName());
+        competitor.setEmail(form.getEmail());
+        competitor.setBirthDate(form.getBirthDate());
+        competitor.setCountry(form.getCountry());
         competitorRepository.save(competitor);
         return "redirect:/competitors";
     }
@@ -271,6 +265,7 @@ public class WebController {
         Competitor competitor = competitorRepository.findById(id).orElse(null);
         if (competitor == null) return "redirect:/competitors";
         model.addAttribute("competitor", competitor);
+        model.addAttribute("registrationForm", new RegistrationFormDTO());
         List<Registration> registrations = registrationRepository.findByCompetitorId(id);
         model.addAttribute("registrations", registrations);
         model.addAttribute("results", resultRepository.findByCompetitorId(id));
@@ -305,17 +300,16 @@ public class WebController {
     // ---- Registration ----
 
     @PostMapping("/competitors/{id}/register")
-    public String registerCompetitor(@PathVariable Long id, @RequestParam Long competitionId,
-                                     @RequestParam(required = false) List<Long> categoryIds) {
-        Competition competition = competitionService.findById(competitionId);
+    public String registerCompetitor(@PathVariable Long id, @ModelAttribute RegistrationFormDTO form) {
+        Competition competition = competitionService.findById(form.getCompetitionId());
         Competitor competitor = competitorRepository.findById(id).orElse(null);
         if (competition == null || competitor == null) return "redirect:/competitors";
         Registration registration = new Registration();
         registration.setCompetition(competition);
         registration.setCompetitor(competitor);
         registration.setRegistrationDatetime(LocalDateTime.now());
-        if (categoryIds != null) {
-            registration.setCategories(categoryRepository.findAllById(categoryIds));
+        if (form.getCategoryIds() != null) {
+            registration.setCategories(categoryRepository.findAllById(form.getCategoryIds()));
         }
         registrationRepository.save(registration);
         return "redirect:/competitors/" + id;

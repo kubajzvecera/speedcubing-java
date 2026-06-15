@@ -26,7 +26,7 @@
                     <td th:if="${bestSingle == null}">-</td>
                 </tr>
                 <tr><th>Best Ao5</th>
-                    <td th:if="${bestAo5 != null}" th:text="${#strings.format('%.2f', bestAo5)} + ' ms'">-</td>
+                    <td th:if="${bestAo5 != null}" th:text="${#numbers.formatDecimal(bestAo5, 0, 2)} + ' ms'">-</td>
                     <td th:if="${bestAo5 == null}">-</td>
                 </tr>
             </table>
@@ -52,15 +52,15 @@
     </table>
     <p th:if="${#lists.isEmpty(registrations)}">Not registered in any competition.</p>
 
-    <form th:if="${not #lists.isEmpty(availableCompetitions)}" action="#" th:action="@{/competitors/{id}/register(id=${competitor.id})}" method="post" class="row g-3 mb-4">
+    <form th:if="${not #lists.isEmpty(availableCompetitions)}" action="#" th:action="@{/competitors/{id}/register(id=${competitor.id})}" th:object="${registrationForm}" method="post" class="row g-3 mb-4">
         <div class="col-12">
-            <select name="competitionId" class="form-select" required>
+            <select th:field="*{competitionId}" class="form-select" required>
                 <option th:each="c : ${availableCompetitions}" th:value="${c.id}" th:text="${c.name}"></option>
             </select>
         </div>
         <div class="col-12">
             <div class="form-check form-check-inline" th:each="cat : ${allCategories}">
-                <input class="form-check-input" type="checkbox" name="categoryIds" th:value="${cat.id}" th:id="'cat-' + ${cat.id}">
+                <input class="form-check-input" type="checkbox" th:field="*{categoryIds}" th:value="${cat.id}" th:id="'cat-' + ${cat.id}">
                 <label class="form-check-label" th:for="'cat-' + ${cat.id}" th:text="${cat.name}">cat</label>
             </div>
         </div>
@@ -79,7 +79,7 @@
             <td th:text="${r.round.category.name}">category</td>
             <td><a th:href="@{/results/{id}(id=${r.round.id})}" th:text="${r.round.name}">round</a></td>
             <td th:text="${r.bestTime} + ' ms'">best</td>
-            <td th:text="${#strings.format('%.2f', r.averageTime)} + ' ms'">avg</td>
+            <td th:text="${#numbers.formatDecimal(r.averageTime, 0, 2)} + ' ms'">avg</td>
             <td th:text="${r.rank}">rank</td>
         </tr>
         </tbody>

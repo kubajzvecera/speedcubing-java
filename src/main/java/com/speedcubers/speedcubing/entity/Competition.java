@@ -40,6 +40,6 @@ public class Competition {
     private List<Category> categories;
 
     @JsonManagedReference("competition-registrations")
-    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = Registration_.COMPETITION, cascade = CascadeType.ALL)
     private List<Registration> registrations;
 }

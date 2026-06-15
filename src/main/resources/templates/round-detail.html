@@ -13,18 +13,18 @@
 
     <h3>Add Solve</h3>
     <div th:if="${hasResults}" class="alert alert-info">Results already generated – adding more solves is disabled.</div>
-    <form th:unless="${hasResults}" action="#" th:action="@{/rounds/{id}/solves(id=${round.id})}" method="post" class="row g-3 mb-4">
-        <input type="hidden" name="competitionId" th:value="${competitionId}" />
+    <form th:unless="${hasResults}" action="#" th:action="@{/rounds/{id}/solves(id=${round.id})}" th:object="${solveForm}" method="post" class="row g-3 mb-4">
+        <input type="hidden" th:field="*{competitionId}" th:value="${competitionId}" />
         <div class="col-auto">
-            <select name="competitorId" class="form-select" required>
+            <select th:field="*{competitorId}" class="form-select" required>
                 <option th:each="c : ${competitors}" th:value="${c.id}" th:text="${c.firstName + ' ' + c.lastName}"></option>
             </select>
         </div>
         <div class="col-auto">
-            <input type="number" name="timeMs" class="form-control" placeholder="Time (ms)" min="0" required>
+            <input type="number" th:field="*{timeMs}" class="form-control" placeholder="Time (ms)" min="0" required>
         </div>
         <div class="col-auto">
-            <select name="penalty" class="form-select">
+            <select th:field="*{penalty}" class="form-select">
                 <option value="">None</option>
                 <option value="+2">+2</option>
                 <option value="DNF">DNF</option>

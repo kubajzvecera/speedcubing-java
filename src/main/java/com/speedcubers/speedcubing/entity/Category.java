@@ -22,6 +22,6 @@ public class Category {
     private String name;
 
     @JsonManagedReference("category-rounds")
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = Round_.CATEGORY, cascade = CascadeType.ALL)
     private List<Round> rounds;
 }

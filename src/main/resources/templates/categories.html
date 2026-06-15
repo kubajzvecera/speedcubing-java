@@ -11,9 +11,9 @@
     <a href="/" class="btn btn-secondary mb-3">Back</a>
 
     <h3>Add Category</h3>
-    <form action="#" th:action="@{/categories}" method="post" class="row g-3 mb-4">
+    <form action="#" th:action="@{/categories}" th:object="${form}" method="post" class="row g-3 mb-4">
         <div class="col-auto">
-            <input type="text" name="name" class="form-control" placeholder="Category name (e.g. 3x3x3)" required>
+            <input type="text" th:field="*{name}" class="form-control" placeholder="Category name (e.g. 3x3x3)" required>
         </div>
         <div class="col-auto">
             <button type="submit" class="btn btn-primary">Add</button>
