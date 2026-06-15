@@ -3,7 +3,7 @@ package com.speedcubers.speedcubing.dto;
 import lombok.Data;
 
 @Data
-public class SolveFormDTO {
+public class SolveformDTO {
     private Long competitorId;
     private int timeMs;
     private String penalty;

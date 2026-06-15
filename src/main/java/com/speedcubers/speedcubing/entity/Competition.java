@@ -34,8 +34,7 @@ public class Competition {
     @JoinTable(
         name = "competition_category",
         joinColumns = @JoinColumn(name = "competition_id"),
-        inverseJoinColumns = @JoinColumn(name = "category_id"),
-        uniqueConstraints = @UniqueConstraint(columnNames = {"competition_id", "category_id"})
+        inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private List<Category> categories;
 

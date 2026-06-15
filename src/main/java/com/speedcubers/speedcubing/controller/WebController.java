@@ -11,11 +11,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import com.speedcubers.speedcubing.dto.*; // CompetitionFormDTO, CategoryFormDTO, OrganizerFormDTO, CompetitorFormDTO, RoundFormDTO, RegistrationFormDTO, SolveFormDTO
+import com.speedcubers.speedcubing.dto.*; // CompetitionFormDTO, CategoryFormDTO, OrganizerFormDTO, CompetitorFormDTO, RoundFormDTO, RegistrationFormDTO, SolveformDTO
 import com.speedcubers.speedcubing.entity.Result;
 
 @Controller
@@ -163,12 +162,12 @@ public class WebController {
         }
         model.addAttribute("solves", solveService.getSolvesByRound(id));
         model.addAttribute("hasResults", !resultRepository.findByRound(round).isEmpty());
-        model.addAttribute("solveForm", new SolveFormDTO());
+        model.addAttribute("solveForm", new SolveformDTO());
         return "round-detail";
     }
 
     @PostMapping("/rounds/{id}/solves")
-    public String addSolve(@PathVariable Long id, @ModelAttribute SolveFormDTO form) {
+    public String addSolve(@PathVariable Long id, @ModelAttribute SolveformDTO form) {
         solveService.addSolve(id, form.getCompetitorId(), form.getTimeMs(), form.getPenalty());
         if (form.getCompetitionId() != null) {
             return "redirect:/rounds/" + id + "?competitionId=" + form.getCompetitionId();
