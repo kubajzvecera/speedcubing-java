@@ -1,5 +1,6 @@
 package com.speedcubers.speedcubing.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,8 +23,23 @@ public class Competition {
     private String name;
     private LocalDate date;
     private String location;
+    private LocalDate endDate;
 
-    @JsonManagedReference("competition-rounds")
-    @OneToMany(mappedBy = Round_.COMPETITION, cascade = CascadeType.ALL)
-    private List<Round> rounds;
+    @JsonBackReference("organizer-competitions")
+    @ManyToOne
+    @JoinColumn(name = "organizer_id")
+    private Organizer organizer;
+
+    @ManyToMany
+    @JoinTable(
+        name = "competition_category",
+        joinColumns = @JoinColumn(name = "competition_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"competition_id", "category_id"})
+    )
+    private List<Category> categories;
+
+    @JsonManagedReference("competition-registrations")
+    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
+    private List<Registration> registrations;
 }

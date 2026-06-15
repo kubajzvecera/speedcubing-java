@@ -2,6 +2,7 @@ package com.speedcubers.speedcubing.service;
 
 import com.speedcubers.speedcubing.entity.Competition;
 import com.speedcubers.speedcubing.repository.CompetitionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,11 +10,8 @@ import java.util.List;
 @Service
 public class CompetitionService {
 
-    private final CompetitionRepository competitionRepository;
-
-    public CompetitionService(CompetitionRepository competitionRepository) {
-        this.competitionRepository = competitionRepository;
-    }
+    @Autowired
+    private CompetitionRepository competitionRepository;
 
     public List<Competition> findAll() {
         return competitionRepository.findAll();

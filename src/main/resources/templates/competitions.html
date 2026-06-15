@@ -9,12 +9,48 @@
 <div class="container mt-4">
     <h1>Competitions</h1>
     <a href="/" class="btn btn-secondary mb-3">Back</a>
+
+    <h3>Create Competition</h3>
+    <form action="#" th:action="@{/competitions}" method="post" class="row g-3 mb-4">
+        <div class="col-auto">
+            <input type="text" name="name" class="form-control" placeholder="Name" required>
+        </div>
+        <div class="col-auto">
+            <input type="date" name="date" class="form-control" required>
+        </div>
+        <div class="col-auto">
+            <input type="text" name="location" class="form-control" placeholder="Location" required>
+        </div>
+        <div class="col-auto">
+            <input type="date" name="endDate" class="form-control" placeholder="End date">
+        </div>
+        <div class="col-auto">
+            <select name="organizerId" class="form-select">
+                <option value="">No organizer</option>
+                <option th:each="o : ${organizers}" th:value="${o.id}" th:text="${o.firstName} + ' ' + ${o.lastName}"></option>
+            </select>
+        </div>
+        <div class="col-12">
+            <strong>Categories:</strong>
+            <div th:each="cat : ${allCategories}" class="form-check form-check-inline">
+                <input type="checkbox" name="categoryIds" th:value="${cat.id}" class="form-check-input" th:id="'cat-' + ${cat.id}">
+                <label class="form-check-label" th:for="'cat-' + ${cat.id}" th:text="${cat.name}"></label>
+            </div>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+    </form>
+
     <table class="table table-striped">
         <thead>
         <tr>
             <th>Name</th>
             <th>Date</th>
             <th>Location</th>
+            <th>Categories</th>
+            <th>Organizer</th>
+            <th></th>
             <th></th>
         </tr>
         </thead>
@@ -23,7 +59,16 @@
             <td th:text="${c.name}">name</td>
             <td th:text="${c.date}">date</td>
             <td th:text="${c.location}">location</td>
+            <td>
+                <span th:each="cat : ${c.categories}" th:text="${cat.name} + ' '" class="badge bg-info me-1"></span>
+            </td>
+            <td th:text="${c.organizer != null ? c.organizer.firstName + ' ' + c.organizer.lastName : '-'}">org</td>
             <td><a th:href="@{/competitions/{id}(id=${c.id})}" class="btn btn-sm btn-info">Detail</a></td>
+            <td>
+                <form action="#" th:action="@{/competitions/{id}/delete(id=${c.id})}" method="post" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
         </tr>
         </tbody>
     </table>

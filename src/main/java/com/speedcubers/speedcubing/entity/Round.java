@@ -22,16 +22,16 @@ public class Round {
     private String name;
     private int roundNumber;
 
-    @JsonBackReference("competition-rounds")
+    @JsonBackReference("category-rounds")
     @ManyToOne
-    @JoinColumn(name = "competition_id")
-    private Competition competition;
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @JsonManagedReference("round-solves")
-    @OneToMany(mappedBy = Solve_.ROUND, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "round", cascade = CascadeType.ALL)
     private List<Solve> solves;
 
     @JsonManagedReference("round-results")
-    @OneToMany(mappedBy = Result_.ROUND, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "round", cascade = CascadeType.ALL)
     private List<Result> results;
 }

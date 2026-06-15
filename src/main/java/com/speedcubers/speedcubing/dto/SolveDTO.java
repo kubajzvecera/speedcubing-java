@@ -8,7 +8,6 @@ import lombok.Data;
 public class SolveDTO {
     private Long roundId;
     private Long competitorId;
-    private int attemptNumber;
     private int timeMs;
     private String penalty;
 }

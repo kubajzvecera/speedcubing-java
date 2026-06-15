@@ -25,3 +25,20 @@ replay_pid*
 
 AGENTS.md
 HELP.md
+
+# Build
+target/
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+
+# Database
+data/
+*.mv.db
+*.trace.db
+
+# Misc
+db2_task1.pdf

@@ -8,11 +8,8 @@
 <body>
 <div class="container mt-4">
     <h1 th:text="'Results: ' + ${round.name}">results</h1>
-    <a th:href="@{/rounds/{id}(id=${round.id})}" class="btn btn-secondary mb-3">Back</a>
-
-    <form action="#" th:action="@{/results/generate/{roundId}(roundId=${round.id})}" method="post" class="mb-3">
-        <button type="submit" class="btn btn-warning">Generate Ao5 Results</button>
-    </form>
+    <a th:if="${competitionId != null}" th:href="@{/competitions/{id}(id=${competitionId})}" class="btn btn-secondary mb-3">Back to Competition</a>
+    <a th:if="${competitionId == null}" href="/competitions" class="btn btn-secondary mb-3">Back to Competitions</a>
 
     <table class="table table-striped">
         <thead>
@@ -26,7 +23,7 @@
         <tbody>
         <tr th:each="r : ${results}">
             <td th:text="${r.rank}">rank</td>
-            <td th:text="${r.competitor.name}">name</td>
+            <td th:text="${r.competitor.firstName + ' ' + r.competitor.lastName}">name</td>
             <td th:text="${r.bestTime}">best</td>
             <td th:text="${r.averageTime}">avg</td>
         </tr>

@@ -8,17 +8,17 @@
 <body>
 <div class="container mt-4">
     <h1 th:text="${round.name}">round name</h1>
-    <a th:href="@{/competitions/{id}(id=${round.competition.id})}" class="btn btn-secondary mb-3">Back</a>
+    <a th:if="${competitionId != null}" th:href="@{/competitions/{id}(id=${competitionId})}" class="btn btn-secondary mb-3">Back to Competition</a>
+    <a th:if="${competitionId == null}" href="/competitions" class="btn btn-secondary mb-3">Back to Competitions</a>
 
     <h3>Add Solve</h3>
-    <form action="#" th:action="@{/rounds/{id}/solves(id=${round.id})}" method="post" class="row g-3 mb-4">
+    <div th:if="${hasResults}" class="alert alert-info">Results already generated – adding more solves is disabled.</div>
+    <form th:unless="${hasResults}" action="#" th:action="@{/rounds/{id}/solves(id=${round.id})}" method="post" class="row g-3 mb-4">
+        <input type="hidden" name="competitionId" th:value="${competitionId}" />
         <div class="col-auto">
             <select name="competitorId" class="form-select" required>
-                <option th:each="c : ${competitors}" th:value="${c.id}" th:text="${c.name}"></option>
+                <option th:each="c : ${competitors}" th:value="${c.id}" th:text="${c.firstName + ' ' + c.lastName}"></option>
             </select>
-        </div>
-        <div class="col-auto">
-            <input type="number" name="attemptNumber" class="form-control" placeholder="Attempt (1-5)" min="1" max="5" required>
         </div>
         <div class="col-auto">
             <input type="number" name="timeMs" class="form-control" placeholder="Time (ms)" min="0" required>
@@ -47,15 +47,13 @@
         </thead>
         <tbody>
         <tr th:each="s : ${solves}">
-            <td th:text="${s.competitor.name}">name</td>
+            <td th:text="${s.competitor.firstName + ' ' + s.competitor.lastName}">name</td>
             <td th:text="${s.attemptNumber}">attempt</td>
             <td th:text="${s.timeMs}">time</td>
             <td th:text="${s.penalty}">penalty</td>
         </tr>
         </tbody>
     </table>
-
-    <a th:href="@{/results/{roundId}(roundId=${round.id})}" class="btn btn-success">View Results</a>
 </div>
 </body>
 </html>

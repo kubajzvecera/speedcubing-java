@@ -8,28 +8,24 @@ import com.speedcubers.speedcubing.repository.CompetitorRepository;
 import com.speedcubers.speedcubing.repository.ResultRepository;
 import com.speedcubers.speedcubing.repository.RoundRepository;
 import com.speedcubers.speedcubing.repository.SolveRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ResultService {
 
-    private final ResultRepository resultRepository;
-    private final RoundRepository roundRepository;
-    private final SolveRepository solveRepository;
-    private final CompetitorRepository competitorRepository;
-
-    public ResultService(ResultRepository resultRepository, RoundRepository roundRepository,
-                         SolveRepository solveRepository, CompetitorRepository competitorRepository) {
-        this.resultRepository = resultRepository;
-        this.roundRepository = roundRepository;
-        this.solveRepository = solveRepository;
-        this.competitorRepository = competitorRepository;
-    }
+    @Autowired
+    private ResultRepository resultRepository;
+    @Autowired
+    private RoundRepository roundRepository;
+    @Autowired
+    private SolveRepository solveRepository;
+    @Autowired
+    private CompetitorRepository competitorRepository;
 
     public List<Result> getResultsByRound(Long roundId) {
         Round round = roundRepository.findById(roundId).orElse(null);
@@ -42,15 +38,27 @@ public class ResultService {
         Round round = roundRepository.findById(roundId).orElse(null);
         if (round == null) return List.of();
 
+        List<Solve> allSolves = solveRepository.findByRound(round);
+        Map<Long, List<Solve>> byCompetitor = allSolves.stream()
+                .collect(Collectors.groupingBy(s -> s.getCompetitor().getId()));
+
+        // každý účastněný musí mít aspoň 5 pokusů
+        for (Map.Entry<Long, List<Solve>> entry : byCompetitor.entrySet()) {
+            if (entry.getValue().size() < 5) return List.of();
+        }
+
+        // aspoň 2 účastníci
+        if (byCompetitor.size() < 2) return List.of();
+
         resultRepository.deleteByRound(round);
 
-        List<Competitor> competitors = competitorRepository.findAll();
         List<Result> results = new ArrayList<>();
 
-        for (Competitor competitor : competitors) {
-            List<Solve> solves = solveRepository.findByRoundAndCompetitorId(round, competitor.getId());
-            if (solves.size() < 5) continue;
+        for (Map.Entry<Long, List<Solve>> entry : byCompetitor.entrySet()) {
+            Competitor competitor = competitorRepository.findById(entry.getKey()).orElse(null);
+            if (competitor == null) continue;
 
+            List<Solve> solves = entry.getValue();
             List<Integer> times = new ArrayList<>();
             for (Solve solve : solves) {
                 if ("DNF".equals(solve.getPenalty())) continue;
