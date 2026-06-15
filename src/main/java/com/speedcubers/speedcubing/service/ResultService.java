@@ -72,7 +72,7 @@ public class ResultService {
             times.sort(Comparator.naturalOrder());
             int bestTime = times.getFirst();
             List<Integer> middle = times.subList(1, times.size() - 1);
-            double avg = middle.stream().mapToInt(Integer::intValue).average().orElse(0);
+            double avg = Math.round(middle.stream().mapToInt(Integer::intValue).average().orElse(0) * 100.0) / 100.0;
 
             Result result = new Result();
             result.setBestTime(bestTime);

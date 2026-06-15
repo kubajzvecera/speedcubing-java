@@ -25,7 +25,7 @@
             <td th:text="${r.rank}">rank</td>
             <td th:text="${r.competitor.firstName + ' ' + r.competitor.lastName}">name</td>
             <td th:text="${r.bestTime}">best</td>
-            <td th:text="${r.averageTime}">avg</td>
+            <td th:text="${#numbers.formatDecimal(r.averageTime, 0, 2)}">avg</td>
         </tr>
         </tbody>
     </table>
