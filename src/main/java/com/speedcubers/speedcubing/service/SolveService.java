@@ -38,12 +38,13 @@ public class SolveService {
 
         int attemptNumber = existing.size() + 1;
 
-        Solve solve = new Solve();
-        solve.setAttemptNumber(attemptNumber);
-        solve.setTimeMs(timeMs);
-        solve.setPenalty(penalty);
-        solve.setRound(round);
-        solve.setCompetitor(competitor);
+        Solve solve = Solve.builder()
+                .attemptNumber(attemptNumber)
+                .timeMs(timeMs)
+                .penalty(penalty)
+                .round(round)
+                .competitor(competitor)
+                .build();
         solveRepository.save(solve);
         return null;
     }

@@ -56,11 +56,11 @@ public class WebController {
 
     @PostMapping("/competitions")
     public String createCompetition(@ModelAttribute CompetitionFormDTO form) {
-        Competition competition = new Competition();
-        competition.setName(form.getName());
-        competition.setDate(form.getDate());
-        competition.setLocation(form.getLocation());
-        competition.setEndDate(form.getEndDate());
+        Competition competition = Competition.builder()
+                .name(form.getName())
+                .date(form.getDate())
+                .location(form.getLocation())
+                .build();
         competitionService.create(competition);
         return "redirect:/competitions";
     }
@@ -135,25 +135,28 @@ public class WebController {
                                         @RequestParam Long categoryId,
                                         @RequestParam String name,
                                         @RequestParam int roundNumber) {
-        Round round = new Round();
-        round.setName(name);
-        round.setRoundNumber(roundNumber);
-        round.setCategory(categoryRepository.findById(categoryId).orElse(null));
-        round.setCompetition(competitionService.findById(id));
+        Round round = Round.builder()
+                .name(name)
+                .roundNumber(roundNumber)
+                .category(categoryRepository.findById(categoryId).orElse(null))
+                .competition(competitionService.findById(id))
+                .build();
         roundRepository.save(round);
         return "redirect:/competitions/" + id;
     }
 
     @PostMapping("/categories/{id}/rounds")
-    public String addRound(@PathVariable Long id, @ModelAttribute RoundFormDTO form) {
-        Round round = new Round();
-        round.setName(form.getName());
-        round.setRoundNumber(form.getRoundNumber());
+    public String addRound(@PathVariable Long id,
+                           @ModelAttribute RoundFormDTO form) {
         Category category = categoryRepository.findById(id).orElse(null);
         Competition competition = competitionService.findById(form.getCompetitionId());
         if (category == null || competition == null) return "redirect:/competitions";
-        round.setCategory(category);
-        round.setCompetition(competition);
+        Round round = Round.builder()
+                .name(form.getName())
+                .roundNumber(form.getRoundNumber())
+                .category(category)
+                .competition(competition)
+                .build();
         roundRepository.save(round);
         return "redirect:/competitions/" + form.getCompetitionId();
     }
@@ -180,7 +183,8 @@ public class WebController {
     }
 
     @PostMapping("/rounds/{id}/solves")
-    public String addSolve(@PathVariable Long id, @ModelAttribute SolveDTO form,
+    public String addSolve(@PathVariable Long id,
+                           @ModelAttribute SolveDTO form,
                            RedirectAttributes redirectAttributes) {
         String error = solveService.addSolve(id, form.getCompetitorId(), form.getTimeMs(), form.getPenalty());
         if (error != null) {
@@ -279,7 +283,8 @@ public class WebController {
     }
 
     @GetMapping("/competitors/{id}")
-    public String competitorDetail(@PathVariable Long id, Model model) {
+    public String competitorDetail(@PathVariable Long id,
+                                   Model model) {
         Competitor competitor = competitorRepository.findById(id).orElse(null);
         if (competitor == null) return "redirect:/competitors";
         model.addAttribute("competitor", competitor);
@@ -356,11 +361,12 @@ public class WebController {
             for (Long catId : form.getCategoryIds()) {
                 Category category = categoryRepository.findById(catId).orElse(null);
                 if (category == null) continue;
-                Registration registration = new Registration();
-                registration.setCompetition(competition);
-                registration.setCompetitor(competitor);
-                registration.setCategory(category);
-                registration.setRegistrationDatetime(now);
+                Registration registration = Registration.builder()
+                        .competition(competition)
+                        .competitor(competitor)
+                        .category(category)
+                        .registrationDatetime(now)
+                        .build();
                 registrationRepository.save(registration);
             }
         }
