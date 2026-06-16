@@ -1,6 +1,5 @@
 package com.speedcubers.speedcubing.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,12 +20,10 @@ public class Solve {
 
     private String penalty;
 
-    @JsonBackReference("competitor-solves")
     @ManyToOne
     @JoinColumn(name = "competitor_id")
     private Competitor competitor;
 
-    @JsonBackReference("round-solves")
     @ManyToOne
     @JoinColumn(name = "round_id")
     private Round round;

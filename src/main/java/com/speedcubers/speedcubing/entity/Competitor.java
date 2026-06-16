@@ -1,6 +1,5 @@
 package com.speedcubers.speedcubing.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,15 +24,12 @@ public class Competitor {
     private LocalDate birthDate;
     private String country;
 
-    @JsonManagedReference("competitor-solves")
     @OneToMany(mappedBy = Solve_.COMPETITOR, cascade = CascadeType.ALL)
     private List<Solve> solves;
 
-    @JsonManagedReference("competitor-results")
     @OneToMany(mappedBy = Result_.COMPETITOR, cascade = CascadeType.ALL)
     private List<Result> results;
 
-    @JsonManagedReference("competitor-registrations")
     @OneToMany(mappedBy = Registration_.COMPETITOR, cascade = CascadeType.ALL)
     private List<Registration> registrations;
 }

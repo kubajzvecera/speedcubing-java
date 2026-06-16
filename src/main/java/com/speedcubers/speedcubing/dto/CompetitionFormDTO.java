@@ -3,7 +3,6 @@ package com.speedcubers.speedcubing.dto;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 public class CompetitionFormDTO {
@@ -11,6 +10,4 @@ public class CompetitionFormDTO {
     private LocalDate date;
     private String location;
     private LocalDate endDate;
-    private Long organizerId;
-    private List<Long> categoryIds;
 }

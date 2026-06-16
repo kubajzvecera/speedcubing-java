@@ -27,12 +27,15 @@ public class SolveService {
         return solveRepository.findByRound(round);
     }
 
-    public Solve addSolve(Long roundId, Long competitorId, int timeMs, String penalty) {
+    public String addSolve(Long roundId, Long competitorId, int timeMs, String penalty) {
+        if (timeMs <= 0) return "Time must be greater than 0.";
         Round round = roundRepository.findById(roundId).orElse(null);
         Competitor competitor = competitorRepository.findById(competitorId).orElse(null);
-        if (round == null || competitor == null) return null;
+        if (round == null || competitor == null) return "Invalid round or competitor.";
 
         List<Solve> existing = solveRepository.findByRoundAndCompetitorId(round, competitorId);
+        if (existing.size() >= 5) return "Maximum 5 solves per competitor per round reached.";
+
         int attemptNumber = existing.size() + 1;
 
         Solve solve = new Solve();
@@ -41,6 +44,7 @@ public class SolveService {
         solve.setPenalty(penalty);
         solve.setRound(round);
         solve.setCompetitor(competitor);
-        return solveRepository.save(solve);
+        solveRepository.save(solve);
+        return null;
     }
 }

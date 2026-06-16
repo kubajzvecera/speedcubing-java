@@ -13,6 +13,6 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
     @Query("SELECT r FROM Registration r WHERE r.competitor.id = :competitorId")
     List<Registration> findByCompetitorId(@Param("competitorId") Long competitorId);
 
-    @Query("SELECT r.competitor FROM Registration r JOIN r.categories c WHERE r.competition.id = :competitionId AND c.id = :categoryId")
+    @Query("SELECT r.competitor FROM Registration r WHERE r.competition.id = :competitionId AND r.category.id = :categoryId")
     List<Competitor> findCompetitorsByCompetitionAndCategory(@Param("competitionId") Long competitionId, @Param("categoryId") Long categoryId);
 }

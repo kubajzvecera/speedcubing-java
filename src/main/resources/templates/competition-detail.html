@@ -13,7 +13,6 @@
         Date: <span th:text="${competition.date}">date</span>
         | Location: <span th:text="${competition.location}">loc</span>
         | End: <span th:text="${competition.endDate ?: '-'}">end</span>
-        | Organizer: <span th:text="${competition.organizer != null ? competition.organizer.firstName + ' ' + competition.organizer.lastName : '-'}">org</span>
     </p>
     <a href="/competitions" class="btn btn-secondary mb-3">Back</a>
 
@@ -29,6 +28,25 @@
     <!-- Categories -->
     <h3>Categories</h3>
 
+    <!-- Add round (works even when no categories exist yet) -->
+    <form action="#" th:action="@{/competitions/{id}/add-round(id=${competition.id})}" method="post" class="row g-2 mb-4">
+        <div class="col-auto">
+            <select name="categoryId" class="form-select form-select-sm" required>
+                <option value="">-- Select category --</option>
+                <option th:each="cat : ${allCategories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="text" name="name" class="form-control form-control-sm" placeholder="Round name" required>
+        </div>
+        <div class="col-auto">
+            <input type="number" name="roundNumber" class="form-control form-control-sm" placeholder="Number" min="1" required>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-sm btn-primary">Add Round</button>
+        </div>
+    </form>
+
     <div th:unless="${#lists.isEmpty(competition.categories)}">
         <div th:each="cat : ${competition.categories}" class="card mb-3">
             <div class="card-header">
@@ -43,8 +61,7 @@
                             <h5 class="mb-0 me-3" th:text="${r.name}">Round name</h5>
                             <span class="badge bg-secondary me-3" th:text="'#' + ${r.roundNumber}">#</span>
                             <div class="ms-auto">
-                                <a th:if="${resultsByRound.get(r.id) == null}" th:href="@{/rounds/{id}(id=${r.id}, competitionId=${competition.id})}" class="btn btn-sm btn-info me-2">Solves</a>
-                                <span th:if="${resultsByRound.get(r.id) != null}" class="text-muted me-2">Done</span>
+                                <a th:href="@{/rounds/{id}(id=${r.id}, competitionId=${competition.id})}" class="btn btn-sm btn-info me-2">Solves</a>
                                 <form action="#" th:action="@{/results/generate/{roundId}(roundId=${r.id})}" method="post" style="display:inline" th:if="${resultsByRound.get(r.id) == null}">
                                     <input type="hidden" name="competitionId" th:value="${competition.id}" />
                                     <button type="submit" class="btn btn-sm btn-warning me-2">Generate Ao5</button>
@@ -78,36 +95,12 @@
                         </div>
                     </div>
                 </div>
-                            </td>
-                        </tr>
-                    </th:block>
-                    </tbody>
-                </table>
 
-                <!-- Add Round -->
-                <form action="#" th:action="@{/categories/{id}/rounds(id=${cat.id})}" th:object="${roundForm}" method="post" class="row g-2 mt-2">
-                    <input type="hidden" th:field="*{competitionId}" th:value="${competition.id}">
-                    <div class="col-auto">
-                        <input type="text" th:field="*{name}" class="form-control form-control-sm" placeholder="Round name" required>
-                    </div>
-                    <div class="col-auto">
-                        <input type="number" th:field="*{roundNumber}" class="form-control form-control-sm" placeholder="Number" min="1" required>
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-sm btn-primary">Add Round</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
     <p th:if="${#lists.isEmpty(competition.categories)}" class="text-muted">No categories yet.</p>
 
-    <!-- Registered Competitors -->
-    <h4 class="mt-4">Registered Competitors</h4>
-    <ul th:if="${not #lists.isEmpty(competition.registrations)}">
-        <li th:each="reg : ${competition.registrations}" th:text="${reg.competitor.firstName + ' ' + reg.competitor.lastName}">name</li>
-    </ul>
-    <p th:if="${#lists.isEmpty(competition.registrations)}" class="text-muted">No competitors registered yet.</p>
 </div>
 </body>
 </html>

@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import com.speedcubers.speedcubing.dto.*; // CompetitionFormDTO, CategoryFormDTO, OrganizerFormDTO, CompetitorFormDTO, RoundFormDTO, RegistrationFormDTO, SolveDTO
+import com.speedcubers.speedcubing.dto.*; // CompetitionFormDTO, CategoryFormDTO, CompetitorFormDTO, RoundFormDTO, RegistrationFormDTO, SolveDTO
 import com.speedcubers.speedcubing.entity.Result;
 
 @Controller
@@ -30,8 +30,6 @@ public class WebController {
     private CompetitorRepository competitorRepository;
     @Autowired
     private RoundRepository roundRepository;
-    @Autowired
-    private OrganizerRepository organizerRepository;
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
@@ -51,7 +49,6 @@ public class WebController {
     @GetMapping("/competitions")
     public String competitions(Model model) {
         model.addAttribute("competitions", competitionService.findAll());
-        model.addAttribute("organizers", organizerRepository.findAll());
         model.addAttribute("allCategories", categoryRepository.findAll());
         model.addAttribute("form", new CompetitionFormDTO());
         return "competitions";
@@ -64,12 +61,6 @@ public class WebController {
         competition.setDate(form.getDate());
         competition.setLocation(form.getLocation());
         competition.setEndDate(form.getEndDate());
-        if (form.getOrganizerId() != null) {
-            competition.setOrganizer(organizerRepository.findById(form.getOrganizerId()).orElse(null));
-        }
-        if (form.getCategoryIds() != null) {
-            competition.setCategories(categoryRepository.findAllById(form.getCategoryIds()));
-        }
         competitionService.create(competition);
         return "redirect:/competitions";
     }
@@ -79,8 +70,8 @@ public class WebController {
         Competition competition = competitionService.findById(id);
         if (competition == null) return "redirect:/competitions";
         model.addAttribute("competition", competition);
-        model.addAttribute("organizers", organizerRepository.findAll());
         model.addAttribute("competitors", competitorRepository.findAll());
+        model.addAttribute("allCategories", categoryRepository.findAll());
         model.addAttribute("roundForm", new RoundFormDTO());
 
         // Build per-category rounds for this competition
@@ -139,6 +130,20 @@ public class WebController {
 
     // ---- Rounds ----
 
+    @PostMapping("/competitions/{id}/add-round")
+    public String addRoundToCompetition(@PathVariable Long id,
+                                        @RequestParam Long categoryId,
+                                        @RequestParam String name,
+                                        @RequestParam int roundNumber) {
+        Round round = new Round();
+        round.setName(name);
+        round.setRoundNumber(roundNumber);
+        round.setCategory(categoryRepository.findById(categoryId).orElse(null));
+        round.setCompetition(competitionService.findById(id));
+        roundRepository.save(round);
+        return "redirect:/competitions/" + id;
+    }
+
     @PostMapping("/categories/{id}/rounds")
     public String addRound(@PathVariable Long id, @ModelAttribute RoundFormDTO form) {
         Round round = new Round();
@@ -175,8 +180,12 @@ public class WebController {
     }
 
     @PostMapping("/rounds/{id}/solves")
-    public String addSolve(@PathVariable Long id, @ModelAttribute SolveDTO form) {
-        solveService.addSolve(id, form.getCompetitorId(), form.getTimeMs(), form.getPenalty());
+    public String addSolve(@PathVariable Long id, @ModelAttribute SolveDTO form,
+                           RedirectAttributes redirectAttributes) {
+        String error = solveService.addSolve(id, form.getCompetitorId(), form.getTimeMs(), form.getPenalty());
+        if (error != null) {
+            redirectAttributes.addFlashAttribute("error", error);
+        }
         if (form.getCompetitionId() != null) {
             return "redirect:/rounds/" + id + "?competitionId=" + form.getCompetitionId();
         }
@@ -242,31 +251,6 @@ public class WebController {
         return "redirect:/competitions";
     }
 
-    // ---- Organizers ----
-
-    @GetMapping("/organizers")
-    public String organizers(Model model) {
-        model.addAttribute("organizers", organizerRepository.findAll());
-        model.addAttribute("form", new OrganizerFormDTO());
-        return "organizers";
-    }
-
-    @PostMapping("/organizers")
-    public String addOrganizer(@ModelAttribute OrganizerFormDTO form) {
-        Organizer organizer = new Organizer();
-        organizer.setFirstName(form.getFirstName());
-        organizer.setLastName(form.getLastName());
-        organizer.setEmail(form.getEmail());
-        organizerRepository.save(organizer);
-        return "redirect:/organizers";
-    }
-
-    @PostMapping("/organizers/{id}/delete")
-    public String deleteOrganizer(@PathVariable Long id) {
-        organizerRepository.deleteById(id);
-        return "redirect:/organizers";
-    }
-
     // ---- Competitors ----
 
     @GetMapping("/competitors")
@@ -301,9 +285,15 @@ public class WebController {
         model.addAttribute("competitor", competitor);
         model.addAttribute("registrationForm", new RegistrationFormDTO());
         List<Registration> registrations = registrationRepository.findByCompetitorId(id);
-        model.addAttribute("registrations", registrations);
-        model.addAttribute("results", resultRepository.findByCompetitorId(id));
-        model.addAttribute("solves", solveRepository.findByCompetitorId(id));
+        Map<Competition, List<Registration>> regsByComp = new LinkedHashMap<>();
+        for (Registration reg : registrations) {
+            regsByComp.computeIfAbsent(reg.getCompetition(), k -> new ArrayList<>()).add(reg);
+        }
+        model.addAttribute("regsByComp", regsByComp);
+        List<Solve> allSolves = solveRepository.findByCompetitorId(id);
+        List<Result> allResults = resultRepository.findByCompetitorId(id);
+        model.addAttribute("solves", allSolves);
+        model.addAttribute("results", allResults);
 
         // competitions not yet registered
         List<Long> registeredIds = registrations.stream()
@@ -311,6 +301,7 @@ public class WebController {
         List<Competition> allCompetitions = competitionService.findAll();
         List<Competition> available = allCompetitions.stream()
                 .filter(c -> !registeredIds.contains(c.getId()))
+                .filter(c -> !c.getCategories().isEmpty())
                 .toList();
         model.addAttribute("availableCompetitions", available);
         model.addAttribute("allCategories", categoryRepository.findAll());
@@ -323,18 +314,32 @@ public class WebController {
         }
         model.addAttribute("competitionCategories", competitionCategories);
 
-        // best single
-        Integer bestSingle = solveRepository.findByCompetitorId(id).stream()
-                .filter(s -> !"DNF".equals(s.getPenalty()))
-                .map(Solve::getTimeMs)
-                .min(Integer::compareTo).orElse(null);
-        model.addAttribute("bestSingle", bestSingle);
+        // per-category best single + best Ao5
+        List<String> categories = allSolves.stream()
+                .map(s -> s.getRound().getCategory().getName())
+                .distinct()
+                .sorted()
+                .toList();
+        List<Map<String, Object>> categoryStats = new ArrayList<>();
+        for (String cat : categories) {
+            Map<String, Object> stat = new HashMap<>();
+            stat.put("categoryName", cat);
 
-        // best Ao5
-        Double bestAo5 = resultRepository.findByCompetitorId(id).stream()
-                .mapToDouble(Result::getAverageTime)
-                .min().orElse(Double.NaN);
-        model.addAttribute("bestAo5", Double.isNaN(bestAo5) ? null : bestAo5);
+            OptionalInt bestSingleOpt = allSolves.stream()
+                    .filter(s -> s.getRound().getCategory().getName().equals(cat) && !"DNF".equals(s.getPenalty()))
+                    .mapToInt(Solve::getTimeMs)
+                    .min();
+            stat.put("bestSingle", bestSingleOpt.isPresent() ? bestSingleOpt.getAsInt() : null);
+
+            OptionalDouble bestAo5Opt = allResults.stream()
+                    .filter(r -> r.getRound().getCategory().getName().equals(cat))
+                    .mapToDouble(Result::getAverageTime)
+                    .min();
+            stat.put("bestAo5", bestAo5Opt.isPresent() ? bestAo5Opt.getAsDouble() : null);
+
+            categoryStats.add(stat);
+        }
+        model.addAttribute("categoryStats", categoryStats);
 
         return "competitor-detail";
     }
@@ -346,14 +351,19 @@ public class WebController {
         Competition competition = competitionService.findById(form.getCompetitionId());
         Competitor competitor = competitorRepository.findById(id).orElse(null);
         if (competition == null || competitor == null) return "redirect:/competitors";
-        Registration registration = new Registration();
-        registration.setCompetition(competition);
-        registration.setCompetitor(competitor);
-        registration.setRegistrationDatetime(LocalDateTime.now());
-        if (form.getCategoryIds() != null) {
-            registration.setCategories(categoryRepository.findAllById(form.getCategoryIds()));
+        if (!form.getCategoryIds().isEmpty()) {
+            var now = LocalDateTime.now();
+            for (Long catId : form.getCategoryIds()) {
+                Category category = categoryRepository.findById(catId).orElse(null);
+                if (category == null) continue;
+                Registration registration = new Registration();
+                registration.setCompetition(competition);
+                registration.setCompetitor(competitor);
+                registration.setCategory(category);
+                registration.setRegistrationDatetime(now);
+                registrationRepository.save(registration);
+            }
         }
-        registrationRepository.save(registration);
         return "redirect:/competitors/" + id;
     }
 }

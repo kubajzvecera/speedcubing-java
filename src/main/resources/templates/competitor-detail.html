@@ -21,36 +21,35 @@
         </div>
         <div class="col-md-6">
             <table class="table table-sm">
-                <tr><th>Best Single</th>
-                    <td th:if="${bestSingle != null}" th:text="${@timeUtils.format(bestSingle)}">-</td>
-                    <td th:if="${bestSingle == null}">-</td>
+                <thead>
+                <tr><th>Category</th><th>Best Single</th><th>Best Ao5</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="stat : ${categoryStats}">
+                    <td th:text="${stat.categoryName}">cat</td>
+                    <td th:text="${stat.bestSingle != null ? @timeUtils.format(stat.bestSingle) : '-'}">best</td>
+                    <td th:text="${stat.bestAo5 != null ? @timeUtils.format(stat.bestAo5) : '-'}">ao5</td>
                 </tr>
-                <tr><th>Best Ao5</th>
-                    <td th:if="${bestAo5 != null}" th:text="${@timeUtils.format(bestAo5)}">-</td>
-                    <td th:if="${bestAo5 == null}">-</td>
-                </tr>
+                </tbody>
             </table>
         </div>
     </div>
 
     <h3>Competitions</h3>
-    <table class="table table-striped" th:if="${not #lists.isEmpty(registrations)}">
+    <table class="table table-striped" th:if="${not #maps.isEmpty(regsByComp)}">
         <thead>
         <tr><th>Competition</th><th>Date</th><th>Location</th><th>Categories</th></tr>
         </thead>
         <tbody>
-        <tr th:each="reg : ${registrations}">
-            <td><a th:href="@{/competitions/{id}(id=${reg.competition.id})}" th:text="${reg.competition.name}">name</a></td>
-            <td th:text="${reg.competition.date}">date</td>
-            <td th:text="${reg.competition.location}">location</td>
-            <td>
-                <span th:each="cat, iter : ${reg.categories}" th:text="${cat.name} + (${iter.last} ? '' : ', ')"></span>
-                <span th:if="${#lists.isEmpty(reg.categories)}" class="text-muted">-</span>
-            </td>
+        <tr th:each="entry : ${regsByComp}">
+            <td><a th:href="@{/competitions/{id}(id=${entry.key.id})}" th:text="${entry.key.name}">name</a></td>
+            <td th:text="${entry.key.date}">date</td>
+            <td th:text="${entry.key.location}">location</td>
+            <td th:text="${#strings.listJoin(entry.value.![category.name], ', ')}">cats</td>
         </tr>
         </tbody>
     </table>
-    <p th:if="${#lists.isEmpty(registrations)}">Not registered in any competition.</p>
+    <p th:if="${#maps.isEmpty(regsByComp)}">Not registered in any competition.</p>
 
     <form th:if="${not #lists.isEmpty(availableCompetitions)}" action="#" th:action="@{/competitors/{id}/register(id=${competitor.id})}" th:object="${registrationForm}" method="post" class="row g-3 mb-4">
         <div class="col-12">
@@ -115,10 +114,12 @@
     <h3>Solves</h3>
     <table class="table table-striped" th:if="${not #lists.isEmpty(solves)}">
         <thead>
-        <tr><th>Round</th><th>Attempt</th><th>Time</th><th>Penalty</th></tr>
+        <tr><th>Competition</th><th>Category</th><th>Round</th><th>Attempt</th><th>Time</th><th>Penalty</th></tr>
         </thead>
         <tbody>
         <tr th:each="s : ${solves}">
+            <td th:text="${s.round.competition.name}">competition</td>
+            <td th:text="${s.round.category.name}">category</td>
             <td th:text="${s.round.name}">round</td>
             <td th:text="${s.attemptNumber}">1</td>
             <td th:text="${@timeUtils.format(s.timeMs)}">time</td>
