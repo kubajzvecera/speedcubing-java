@@ -41,4 +41,7 @@ public class Competition {
     @JsonManagedReference("competition-registrations")
     @OneToMany(mappedBy = Registration_.COMPETITION, cascade = CascadeType.ALL)
     private List<Registration> registrations;
+
+    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
+    private List<Round> rounds;
 }

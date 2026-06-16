@@ -37,8 +37,8 @@
             <div class="card-body">
 
                 <!-- Rounds -->
-                <div th:if="${not #lists.isEmpty(cat.rounds)}">
-                    <div th:each="r : ${cat.rounds}" class="round-section mb-3 p-3 border rounded">
+                <div th:if="${not #lists.isEmpty(roundsByCategory.get(cat.id))}">
+                    <div th:each="r : ${roundsByCategory.get(cat.id)}" class="round-section mb-3 p-3 border rounded">
                         <div class="d-flex align-items-center mb-2">
                             <h5 class="mb-0 me-3" th:text="${r.name}">Round name</h5>
                             <span class="badge bg-secondary me-3" th:text="'#' + ${r.roundNumber}">#</span>
@@ -47,28 +47,32 @@
                                 <span th:if="${resultsByRound.get(r.id) != null}" class="text-muted me-2">Done</span>
                                 <form action="#" th:action="@{/results/generate/{roundId}(roundId=${r.id})}" method="post" style="display:inline" th:if="${resultsByRound.get(r.id) == null}">
                                     <input type="hidden" name="competitionId" th:value="${competition.id}" />
-                                    <button type="submit" class="btn btn-sm btn-warning">Generate Ao5</button>
+                                    <button type="submit" class="btn btn-sm btn-warning me-2">Generate Ao5</button>
                                 </form>
-                                <span th:if="${resultsByRound.get(r.id) != null}" class="text-muted">Results published</span>
+                                <span th:if="${resultsByRound.get(r.id) != null}" class="text-muted me-2">Results published</span>
+                                <form action="#" th:action="@{/rounds/{id}/delete(id=${r.id})}" method="post" style="display:inline">
+                                    <input type="hidden" name="competitionId" th:value="${competition.id}" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
                             </div>
                         </div>
                         <div th:if="${resultsByRound.get(r.id) != null}">
                             <table class="table table-sm table-bordered mb-0 bg-light">
                                 <thead class="table-success">
-                                <tr>
-                                    <th>Rank</th>
-                                    <th>Competitor</th>
-                                    <th>Best (ms)</th>
-                                    <th>Average (ms)</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="res : ${resultsByRound.get(r.id)}">
-                                    <td th:text="${res.rank}">rank</td>
-                                    <td th:text="${res.competitor.firstName + ' ' + res.competitor.lastName}">name</td>
-                                    <td th:text="${res.bestTime}">best</td>
-                                    <td th:text="${#numbers.formatDecimal(res.averageTime, 0, 2)}">avg</td>
-                                </tr>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Competitor</th>
+                                        <th>Best</th>
+                                        <th>Average</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="res : ${resultsByRound.get(r.id)}">
+                                        <td th:text="${res.rank}">rank</td>
+                                        <td th:text="${res.competitor.firstName + ' ' + res.competitor.lastName}">name</td>
+                                        <td th:text="${@timeUtils.format(res.bestTime)}">best</td>
+                                        <td th:text="${@timeUtils.format(res.averageTime)}">avg</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>

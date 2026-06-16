@@ -27,6 +27,10 @@ public class Round {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @ManyToOne
+    @JoinColumn(name = "competition_id")
+    private Competition competition;
+
     @JsonManagedReference("round-solves")
     @OneToMany(mappedBy = Solve_.ROUND, cascade = CascadeType.ALL)
     private List<Solve> solves;

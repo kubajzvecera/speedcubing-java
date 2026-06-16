@@ -22,11 +22,11 @@
         <div class="col-md-6">
             <table class="table table-sm">
                 <tr><th>Best Single</th>
-                    <td th:if="${bestSingle != null}" th:text="${bestSingle} + ' ms'">-</td>
+                    <td th:if="${bestSingle != null}" th:text="${@timeUtils.format(bestSingle)}">-</td>
                     <td th:if="${bestSingle == null}">-</td>
                 </tr>
                 <tr><th>Best Ao5</th>
-                    <td th:if="${bestAo5 != null}" th:text="${#numbers.formatDecimal(bestAo5, 0, 2)} + ' ms'">-</td>
+                    <td th:if="${bestAo5 != null}" th:text="${@timeUtils.format(bestAo5)}">-</td>
                     <td th:if="${bestAo5 == null}">-</td>
                 </tr>
             </table>
@@ -54,13 +54,14 @@
 
     <form th:if="${not #lists.isEmpty(availableCompetitions)}" action="#" th:action="@{/competitors/{id}/register(id=${competitor.id})}" th:object="${registrationForm}" method="post" class="row g-3 mb-4">
         <div class="col-12">
-            <select th:field="*{competitionId}" class="form-select" required>
-                <option th:each="c : ${availableCompetitions}" th:value="${c.id}" th:text="${c.name}"></option>
+            <select th:field="*{competitionId}" class="form-select" id="competitionSelect" required>
+                <option value="">-- Select competition --</option>
+                <option th:each="c : ${availableCompetitions}" th:value="${c.id}" th:text="${c.name}" th:attr="data-categories=${competitionCategories.get(c.id)}"></option>
             </select>
         </div>
         <div class="col-12">
-            <div class="form-check form-check-inline" th:each="cat : ${allCategories}">
-                <input class="form-check-input" type="checkbox" th:field="*{categoryIds}" th:value="${cat.id}" th:id="'cat-' + ${cat.id}">
+            <div th:id="'cat-container-' + ${cat.id}" class="form-check form-check-inline" th:each="cat : ${allCategories}">
+                <input class="form-check-input category-cb" type="checkbox" th:field="*{categoryIds}" th:value="${cat.id}" th:id="'cat-' + ${cat.id}" th:attr="data-cat-id=${cat.id}">
                 <label class="form-check-label" th:for="'cat-' + ${cat.id}" th:text="${cat.name}">cat</label>
             </div>
         </div>
@@ -68,6 +69,31 @@
             <button type="submit" class="btn btn-primary">Register</button>
         </div>
     </form>
+    <script>
+    document.getElementById('competitionSelect').addEventListener('change', function() {
+        var selected = this.value;
+        if (!selected) {
+            document.querySelectorAll('.form-check-inline').forEach(function(el) {
+                el.style.display = '';
+            });
+            return;
+        }
+        var selectedOption = this.options[this.selectedIndex];
+        var catList = selectedOption.getAttribute('data-categories');
+        var allowed = catList ? catList.replace(/[\[\] ]/g, '').split(',').map(Number) : [];
+        document.querySelectorAll('.category-cb').forEach(function(cb) {
+            var container = cb.closest('.form-check-inline');
+            var catId = Number(cb.getAttribute('data-cat-id'));
+            if (allowed.includes(catId)) {
+                container.style.display = '';
+            } else {
+                container.style.display = 'none';
+                cb.checked = false;
+            }
+        });
+    });
+    document.getElementById('competitionSelect').dispatchEvent(new Event('change'));
+    </script>
 
     <h3>Results History</h3>
     <table class="table table-striped" th:if="${not #lists.isEmpty(results)}">
@@ -78,8 +104,8 @@
         <tr th:each="r : ${results}">
             <td th:text="${r.round.category.name}">category</td>
             <td><a th:href="@{/results/{id}(id=${r.round.id})}" th:text="${r.round.name}">round</a></td>
-            <td th:text="${r.bestTime} + ' ms'">best</td>
-            <td th:text="${#numbers.formatDecimal(r.averageTime, 0, 2)} + ' ms'">avg</td>
+            <td th:text="${@timeUtils.format(r.bestTime)}">best</td>
+            <td th:text="${@timeUtils.format(r.averageTime)}">avg</td>
             <td th:text="${r.rank}">rank</td>
         </tr>
         </tbody>
@@ -95,7 +121,7 @@
         <tr th:each="s : ${solves}">
             <td th:text="${s.round.name}">round</td>
             <td th:text="${s.attemptNumber}">1</td>
-            <td th:text="${s.timeMs} + ' ms'">time</td>
+            <td th:text="${@timeUtils.format(s.timeMs)}">time</td>
             <td th:text="${s.penalty}">penalty</td>
         </tr>
         </tbody>

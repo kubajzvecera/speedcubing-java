@@ -16,16 +16,16 @@
         <tr>
             <th>Rank</th>
             <th>Competitor</th>
-            <th>Best Time (ms)</th>
-            <th>Average (ms)</th>
+            <th>Best</th>
+            <th>Average</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="r : ${results}">
             <td th:text="${r.rank}">rank</td>
             <td th:text="${r.competitor.firstName + ' ' + r.competitor.lastName}">name</td>
-            <td th:text="${r.bestTime}">best</td>
-            <td th:text="${#numbers.formatDecimal(r.averageTime, 0, 2)}">avg</td>
+            <td th:text="${@timeUtils.format(r.bestTime)}">best</td>
+            <td th:text="${@timeUtils.format(r.averageTime)}">avg</td>
         </tr>
         </tbody>
     </table>

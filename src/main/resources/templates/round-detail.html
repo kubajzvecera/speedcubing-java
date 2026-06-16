@@ -41,16 +41,23 @@
         <tr>
             <th>Competitor</th>
             <th>Attempt</th>
-            <th>Time (ms)</th>
+            <th>Time</th>
             <th>Penalty</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="s : ${solves}">
             <td th:text="${s.competitor.firstName + ' ' + s.competitor.lastName}">name</td>
             <td th:text="${s.attemptNumber}">attempt</td>
-            <td th:text="${s.timeMs}">time</td>
-            <td th:text="${s.penalty}">penalty</td>
+            <td th:text="${@timeUtils.format(s.timeMs)}">time</td>
+            <td th:text="${s.penalty ?: '-'}">penalty</td>
+            <td>
+                <form action="#" th:action="@{/solves/{id}/delete(id=${s.id})}" method="post" style="display:inline">
+                    <input type="hidden" name="competitionId" th:value="${competitionId}" />
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
         </tr>
         </tbody>
     </table>

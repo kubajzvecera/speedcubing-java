@@ -19,10 +19,10 @@ MERGE INTO competition_category (competition_id, category_id) KEY (competition_i
 MERGE INTO competition_category (competition_id, category_id) KEY (competition_id, category_id) VALUES (2, 1);
 MERGE INTO competition_category (competition_id, category_id) KEY (competition_id, category_id) VALUES (2, 3);
 
-MERGE INTO round (id, name, round_number, category_id) KEY (id) VALUES (1, 'First Round', 1, 1);
-MERGE INTO round (id, name, round_number, category_id) KEY (id) VALUES (2, 'Final', 2, 1);
-MERGE INTO round (id, name, round_number, category_id) KEY (id) VALUES (3, 'First Round', 1, 2);
-MERGE INTO round (id, name, round_number, category_id) KEY (id) VALUES (4, 'First Round', 1, 3);
+MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (1, 'First Round', 1, 1, 1);
+MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (2, 'Final', 2, 1, 1);
+MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (3, 'First Round', 1, 2, 1);
+MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (4, 'First Round', 1, 3, 1);
 
 MERGE INTO registration (id, competition_id, competitor_id, registration_datetime) KEY (id) VALUES (1, 1, 1, '2025-06-01T10:00:00');
 MERGE INTO registration (id, competition_id, competitor_id, registration_datetime) KEY (id) VALUES (2, 1, 2, '2025-06-01T10:05:00');
@@ -46,7 +46,7 @@ MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id)
 MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (2, 2, 4890, NULL, 1, 1);
 MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (3, 3, 5120, NULL, 1, 1);
 MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (4, 4, 4980, NULL, 1, 1);
-MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (5, 5, 5350, NULL, 1, 1);
+MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (5, 5, 5350, 'DNF', 1, 1);
 MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (6, 1, 6120, NULL, 2, 1);
 MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (7, 2, 5880, NULL, 2, 1);
 MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (8, 3, 6050, NULL, 2, 1);
@@ -106,12 +106,18 @@ MERGE INTO competition_category (competition_id, category_id) KEY (competition_i
 MERGE INTO competition_category (competition_id, category_id) KEY (competition_id, category_id) VALUES (3, 3);
 
 -- More rounds for 2x2x2 and 4x4x4
-MERGE INTO round (id, name, round_number, category_id) KEY (id) VALUES (5, 'Final', 2, 2);
-MERGE INTO round (id, name, round_number, category_id) KEY (id) VALUES (6, 'Final', 2, 3);
+MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (5, 'Final', 2, 2, 1);
+MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (6, 'Final', 2, 3, 1);
+
+-- Rounds for competition 2
+MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (9, 'First Round', 1, 1, 2);
+MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (10, 'Final', 2, 1, 2);
+MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (11, 'First Round', 1, 3, 2);
+MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (12, 'Final', 2, 3, 2);
 
 -- Rounds for competition 3
-MERGE INTO round (id, name, round_number, category_id) KEY (id) VALUES (7, 'Qualification', 1, 1);
-MERGE INTO round (id, name, round_number, category_id) KEY (id) VALUES (8, 'Semi-Final', 2, 1);
+MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (7, 'Qualification', 1, 1, 3);
+MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (8, 'Semi-Final', 2, 1, 3);
 
 -- Register more competitors for competition 3
 MERGE INTO registration (id, competition_id, competitor_id, registration_datetime) KEY (id) VALUES (7, 3, 1, '2025-11-01T10:00:00');
@@ -140,6 +146,6 @@ ALTER TABLE competitor ALTER COLUMN id RESTART WITH 6;
 ALTER TABLE organizer ALTER COLUMN id RESTART WITH 3;
 ALTER TABLE category ALTER COLUMN id RESTART WITH 4;
 ALTER TABLE competition ALTER COLUMN id RESTART WITH 4;
-ALTER TABLE round ALTER COLUMN id RESTART WITH 9;
+ALTER TABLE round ALTER COLUMN id RESTART WITH 13;
 ALTER TABLE registration ALTER COLUMN id RESTART WITH 10;
 ALTER TABLE solve ALTER COLUMN id RESTART WITH 61;

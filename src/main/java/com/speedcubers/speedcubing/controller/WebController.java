@@ -83,20 +83,26 @@ public class WebController {
         model.addAttribute("competitors", competitorRepository.findAll());
         model.addAttribute("roundForm", new RoundFormDTO());
 
+        // Build per-category rounds for this competition
+        Map<Long, List<Round>> roundsByCategory = new HashMap<>();
         Map<Long, List<Result>> resultsByRound = new HashMap<>();
         if (competition.getCategories() != null) {
             for (Category cat : competition.getCategories()) {
-                if (cat.getRounds() != null) {
-                    for (Round round : cat.getRounds()) {
-                        List<Result> results = resultRepository.findByRound(round);
+                List<Round> catRounds = new ArrayList<>();
+                for (Round r : competition.getRounds()) {
+                    if (r.getCategory().getId().equals(cat.getId())) {
+                        catRounds.add(r);
+                        List<Result> results = resultRepository.findByRound(r);
                         if (results != null && !results.isEmpty()) {
                             results.sort(Comparator.comparingInt(Result::getRank));
-                            resultsByRound.put(round.getId(), results);
+                            resultsByRound.put(r.getId(), results);
                         }
                     }
                 }
+                roundsByCategory.put(cat.getId(), catRounds);
             }
         }
+        model.addAttribute("roundsByCategory", roundsByCategory);
         model.addAttribute("resultsByRound", resultsByRound);
 
         return "competition-detail";
@@ -139,8 +145,10 @@ public class WebController {
         round.setName(form.getName());
         round.setRoundNumber(form.getRoundNumber());
         Category category = categoryRepository.findById(id).orElse(null);
-        if (category == null) return "redirect:/competitions";
+        Competition competition = competitionService.findById(form.getCompetitionId());
+        if (category == null || competition == null) return "redirect:/competitions";
         round.setCategory(category);
+        round.setCompetition(competition);
         roundRepository.save(round);
         return "redirect:/competitions/" + form.getCompetitionId();
     }
@@ -173,6 +181,33 @@ public class WebController {
             return "redirect:/rounds/" + id + "?competitionId=" + form.getCompetitionId();
         }
         return "redirect:/rounds/" + id;
+    }
+
+    @PostMapping("/solves/{id}/delete")
+    public String deleteSolve(@PathVariable Long id,
+                              @RequestParam(required = false) Long competitionId) {
+        Solve solve = solveRepository.findById(id).orElse(null);
+        if (solve != null) {
+            Long roundId = solve.getRound().getId();
+            solveRepository.deleteById(id);
+            if (competitionId != null) {
+                return "redirect:/rounds/" + roundId + "?competitionId=" + competitionId;
+            }
+            return "redirect:/rounds/" + roundId;
+        }
+        return "redirect:/competitions";
+    }
+
+    @PostMapping("/rounds/{id}/delete")
+    public String deleteRound(@PathVariable Long id,
+                              @RequestParam(required = false) Long competitionId) {
+        Round round = roundRepository.findById(id).orElse(null);
+        if (round != null) {
+            Long compId = competitionId != null ? competitionId : round.getCompetition().getId();
+            roundRepository.deleteById(id);
+            return "redirect:/competitions/" + compId;
+        }
+        return "redirect:/competitions";
     }
 
     // ---- Results ----
@@ -279,6 +314,14 @@ public class WebController {
                 .toList();
         model.addAttribute("availableCompetitions", available);
         model.addAttribute("allCategories", categoryRepository.findAll());
+
+        // competition -> category IDs map for JS filtering
+        Map<Long, List<Long>> competitionCategories = new HashMap<>();
+        for (Competition c : allCompetitions) {
+            competitionCategories.put(c.getId(),
+                c.getCategories().stream().map(Category::getId).toList());
+        }
+        model.addAttribute("competitionCategories", competitionCategories);
 
         // best single
         Integer bestSingle = solveRepository.findByCompetitorId(id).stream()
