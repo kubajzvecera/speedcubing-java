@@ -21,12 +21,6 @@ public class SolveService {
     @Autowired
     private CompetitorRepository competitorRepository;
 
-    public List<Solve> getSolvesByRound(Long roundId) {
-        Round round = roundRepository.findById(roundId).orElse(null);
-        if (round == null) return List.of();
-        return solveRepository.findByRound(round);
-    }
-
     public String addSolve(Long roundId, Long competitorId, int timeMs, String penalty) {
         if (timeMs <= 0) return "Time must be greater than 0.";
         Round round = roundRepository.findById(roundId).orElse(null);

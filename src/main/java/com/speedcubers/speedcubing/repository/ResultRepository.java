@@ -14,6 +14,9 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
     @Query("SELECT r FROM Result r WHERE r.round = :round")
     List<Result> findByRound(@Param("round") Round round);
 
+    @Query("SELECT r FROM Result r WHERE r.round IN :rounds ORDER BY r.round.id, r.rank")
+    List<Result> findByRoundIn(@Param("rounds") List<Round> rounds);
+
     @Modifying
     @Query("DELETE FROM Result r WHERE r.round = :round")
     void deleteByRound(@Param("round") Round round);

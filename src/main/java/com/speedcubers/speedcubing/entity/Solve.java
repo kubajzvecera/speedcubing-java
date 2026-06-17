@@ -23,10 +23,8 @@ public class Solve {
     private String penalty;
 
     @ManyToOne
-    @JoinColumn(name = "competitor_id")
     private Competitor competitor;
 
     @ManyToOne
-    @JoinColumn(name = "round_id")
     private Round round;
 }

@@ -23,11 +23,9 @@ public class Round {
     private int roundNumber;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
     private Category category;
 
     @ManyToOne
-    @JoinColumn(name = "competition_id")
     private Competition competition;
 
     @OneToMany(mappedBy = Solve_.ROUND, cascade = CascadeType.ALL)

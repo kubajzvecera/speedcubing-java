@@ -73,18 +73,6 @@ MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id)
 MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (39, 4, 2120, NULL, 3, 3);
 MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (40, 5, 1960, NULL, 3, 3);
 
--- Solves for Round 4 (4x4x4 First Round) - competitors 4,5 each 5 solves
-MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (41, 1, 8920, NULL, 4, 4);
-MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (42, 2, 8750, NULL, 4, 4);
-MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (43, 3, 9100, NULL, 4, 4);
-MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (44, 4, 8830, NULL, 4, 4);
-MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (45, 5, 8670, NULL, 4, 4);
-MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (46, 1, 9450, NULL, 5, 4);
-MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (47, 2, 9230, NULL, 5, 4);
-MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (48, 3, 9370, NULL, 5, 4);
-MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (49, 4, 9520, NULL, 5, 4);
-MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (50, 5, 9180, NULL, 5, 4);
-
 -- Third competition with more data
 MERGE INTO competition (id, name, date, location, end_date) KEY (id) VALUES (3, 'Winter Cubing 2025', '2025-12-06', 'Ostrava', '2025-12-07');
 
@@ -97,6 +85,18 @@ MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) 
 MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (10, 'Final', 2, 1, 2);
 MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (11, 'First Round', 1, 3, 2);
 MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (12, 'Final', 2, 3, 2);
+
+-- Solves for Round 11 (4x4x4 First Round, Summer Cubing) - competitors 4,5 each 5 solves
+MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (41, 1, 8920, NULL, 4, 11);
+MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (42, 2, 8750, NULL, 4, 11);
+MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (43, 3, 9100, NULL, 4, 11);
+MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (44, 4, 8830, NULL, 4, 11);
+MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (45, 5, 8670, NULL, 4, 11);
+MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (46, 1, 9450, NULL, 5, 11);
+MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (47, 2, 9230, NULL, 5, 11);
+MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (48, 3, 9370, NULL, 5, 11);
+MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (49, 4, 9520, NULL, 5, 11);
+MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (50, 5, 9180, NULL, 5, 11);
 
 -- Rounds for competition 3
 MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (7, 'Qualification', 1, 1, 3);

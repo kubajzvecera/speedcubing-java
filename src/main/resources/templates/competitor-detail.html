@@ -27,8 +27,8 @@
                 <tbody>
                 <tr th:each="stat : ${categoryStats}">
                     <td th:text="${stat.categoryName}">cat</td>
-                    <td th:text="${stat.bestSingle != null ? @timeUtils.format(stat.bestSingle) : '-'}">best</td>
-                    <td th:text="${stat.bestAo5 != null ? @timeUtils.format(stat.bestAo5) : '-'}">ao5</td>
+                    <td th:text="${stat.bestSingle != null ? @timeConvert.format(stat.bestSingle) : '-'}">best</td>
+                    <td th:text="${stat.bestAo5 != null ? @timeConvert.format(stat.bestAo5) : '-'}">ao5</td>
                 </tr>
                 </tbody>
             </table>
@@ -51,16 +51,16 @@
     </table>
     <p th:if="${#maps.isEmpty(regsByComp)}">Not registered in any competition.</p>
 
-    <form th:if="${not #lists.isEmpty(availableCompetitions)}" action="#" th:action="@{/competitors/{id}/register(id=${competitor.id})}" th:object="${registrationForm}" method="post" class="row g-3 mb-4">
+    <form th:if="${not #lists.isEmpty(availableCompetitions)}" action="#" th:action="@{/competitors/{id}/register(id=${competitor.id})}" method="post" class="row g-3 mb-4">
         <div class="col-12">
-            <select th:field="*{competitionId}" class="form-select" id="competitionSelect" required>
+            <select name="competitionId" class="form-select" id="competitionSelect" required>
                 <option value="">-- Select competition --</option>
                 <option th:each="c : ${availableCompetitions}" th:value="${c.id}" th:text="${c.name}" th:attr="data-categories=${competitionCategories.get(c.id)}"></option>
             </select>
         </div>
         <div class="col-12">
             <div th:id="'cat-container-' + ${cat.id}" class="form-check form-check-inline" th:each="cat : ${allCategories}">
-                <input class="form-check-input category-cb" type="checkbox" th:field="*{categoryIds}" th:value="${cat.id}" th:id="'cat-' + ${cat.id}" th:attr="data-cat-id=${cat.id}">
+                <input class="form-check-input category-cb" type="checkbox" name="categoryIds" th:value="${cat.id}" th:id="'cat-' + ${cat.id}" th:attr="data-cat-id=${cat.id}">
                 <label class="form-check-label" th:for="'cat-' + ${cat.id}" th:text="${cat.name}">cat</label>
             </div>
         </div>
@@ -97,37 +97,21 @@
     <h3>Results History</h3>
     <table class="table table-striped" th:if="${not #lists.isEmpty(results)}">
         <thead>
-        <tr><th>Category</th><th>Round</th><th>Best</th><th>Ao5</th><th>Rank</th></tr>
+        <tr><th>Competition</th><th>Category</th><th>Round</th><th>Best</th><th>Ao5</th><th>Rank</th></tr>
         </thead>
         <tbody>
         <tr th:each="r : ${results}">
+            <td th:text="${r.round.competition.name}">competition</td>
             <td th:text="${r.round.category.name}">category</td>
-            <td><a th:href="@{/results/{id}(id=${r.round.id})}" th:text="${r.round.name}">round</a></td>
-            <td th:text="${@timeUtils.format(r.bestTime)}">best</td>
-            <td th:text="${@timeUtils.format(r.averageTime)}">avg</td>
+            <td th:text="${r.round.name}">round</td>
+            <td th:text="${@timeConvert.format(r.bestTime)}">best</td>
+            <td th:text="${@timeConvert.format(r.averageTime)}">avg</td>
             <td th:text="${r.rank}">rank</td>
         </tr>
         </tbody>
     </table>
     <p th:if="${#lists.isEmpty(results)}">No results yet.</p>
 
-    <h3>Solves</h3>
-    <table class="table table-striped" th:if="${not #lists.isEmpty(solves)}">
-        <thead>
-        <tr><th>Competition</th><th>Category</th><th>Round</th><th>Attempt</th><th>Time</th><th>Penalty</th></tr>
-        </thead>
-        <tbody>
-        <tr th:each="s : ${solves}">
-            <td th:text="${s.round.competition.name}">competition</td>
-            <td th:text="${s.round.category.name}">category</td>
-            <td th:text="${s.round.name}">round</td>
-            <td th:text="${s.attemptNumber}">1</td>
-            <td th:text="${@timeUtils.format(s.timeMs)}">time</td>
-            <td th:text="${s.penalty}">penalty</td>
-        </tr>
-        </tbody>
-    </table>
-    <p th:if="${#lists.isEmpty(solves)}">No solves yet.</p>
 </div>
 </body>
 </html>

@@ -21,23 +21,16 @@ public class ResultService {
     @Autowired
     private ResultRepository resultRepository;
     @Autowired
-    private RoundRepository roundRepository;
-    @Autowired
     private SolveRepository solveRepository;
     @Autowired
     private CompetitorRepository competitorRepository;
 
-    public List<Result> getResultsByRound(Long roundId) {
-        Round round = roundRepository.findById(roundId).orElse(null);
-        if (round == null) return List.of();
+    public List<Result> getResultsByRound(Round round) {
         return resultRepository.findByRound(round);
     }
 
     @Transactional
-    public List<Result> generateResults(Long roundId) {
-        Round round = roundRepository.findById(roundId).orElse(null);
-        if (round == null) return List.of();
-
+    public List<Result> generateResults(Round round) {
         List<Solve> allSolves = solveRepository.findByRound(round);
         Map<Long, List<Solve>> byCompetitor = allSolves.stream()
                 .collect(Collectors.groupingBy(s -> s.getCompetitor().getId()));

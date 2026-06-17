@@ -87,8 +87,8 @@
                                     <tr th:each="res : ${resultsByRound.get(r.id)}">
                                         <td th:text="${res.rank}">rank</td>
                                         <td th:text="${res.competitor.firstName + ' ' + res.competitor.lastName}">name</td>
-                                        <td th:text="${@timeUtils.format(res.bestTime)}">best</td>
-                                        <td th:text="${@timeUtils.format(res.averageTime)}">avg</td>
+                                        <td th:text="${@timeConvert.format(res.bestTime)}">best</td>
+                                        <td th:text="${@timeConvert.format(res.averageTime)}">avg</td>
                                     </tr>
                                 </tbody>
                             </table>

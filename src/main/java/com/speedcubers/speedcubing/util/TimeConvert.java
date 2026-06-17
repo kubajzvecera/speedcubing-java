@@ -3,14 +3,11 @@ package com.speedcubers.speedcubing.util;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TimeUtils {
+public class TimeConvert {
 
-    public String format(Integer timeMs) {
-        if (timeMs == null) return "-";
-        return format(timeMs.intValue());
-    }
-
-    public String format(int timeMs) {
+    public String format(Integer timeMsraw) {
+        if (timeMsraw == null) return "-";
+        int timeMs = timeMsraw;
         if (timeMs < 60_000) {
             return String.format("%.2f", timeMs / 1000.0);
         }

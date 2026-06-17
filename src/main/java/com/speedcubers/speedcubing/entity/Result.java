@@ -20,10 +20,8 @@ public class Result {
     private int rank;
 
     @ManyToOne
-    @JoinColumn(name = "competitor_id")
     private Competitor competitor;
 
     @ManyToOne
-    @JoinColumn(name = "round_id")
     private Round round;
 }

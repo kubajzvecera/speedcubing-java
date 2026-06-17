@@ -22,14 +22,11 @@ public class Registration {
     private LocalDateTime registrationDatetime;
 
     @ManyToOne
-    @JoinColumn(name = "competition_id")
     private Competition competition;
 
     @ManyToOne
-    @JoinColumn(name = "competitor_id")
     private Competitor competitor;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
     private Category category;
 }

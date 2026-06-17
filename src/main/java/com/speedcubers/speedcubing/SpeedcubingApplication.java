@@ -22,6 +22,6 @@ public class SpeedcubingApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        roundRepository.findAll().forEach(round -> resultService.generateResults(round.getId()));
+        roundRepository.findAll().forEach(round -> resultService.generateResults(round));
     }
 }

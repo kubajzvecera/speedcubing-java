@@ -11,18 +11,18 @@
     <a href="/" class="btn btn-secondary mb-3">Back</a>
 
     <h3>Create Competition</h3>
-    <form action="#" th:action="@{/competitions}" th:object="${form}" method="post" class="row g-3 mb-4">
+    <form action="#" th:action="@{/competitions}" method="post" class="row g-3 mb-4">
         <div class="col-auto">
-            <input type="text" th:field="*{name}" class="form-control" placeholder="Name" required>
+            <input type="text" name="name" class="form-control" placeholder="Name" required>
         </div>
         <div class="col-auto">
-            <input type="date" th:field="*{date}" class="form-control" required>
+            <input type="date" name="date" class="form-control" required>
         </div>
         <div class="col-auto">
-            <input type="text" th:field="*{location}" class="form-control" placeholder="Location" required>
+            <input type="text" name="location" class="form-control" placeholder="Location" required>
         </div>
         <div class="col-auto">
-            <input type="date" th:field="*{endDate}" class="form-control" placeholder="End date">
+            <input type="date" name="endDate" class="form-control" required>
         </div>
         <div class="col-12">
             <button type="submit" class="btn btn-primary">Create</button>
