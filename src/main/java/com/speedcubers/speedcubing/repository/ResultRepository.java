@@ -23,4 +23,9 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
 
     @Query("SELECT r FROM Result r WHERE r.competitor.id = :competitorId")
     List<Result> findByCompetitorId(@Param("competitorId") Long competitorId);
+
+    @Query("SELECT c.name, MIN(r.averageTime) FROM Result r JOIN r.round ro JOIN ro.category c " +
+           "WHERE r.competitor.id = :competitorId " +
+           "GROUP BY c.name ORDER BY c.name")
+    List<Object[]> findBestAo5ByCategory(@Param("competitorId") Long competitorId);
 }

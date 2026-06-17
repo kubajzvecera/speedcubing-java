@@ -2,6 +2,7 @@ package com.speedcubers.speedcubing.controller;
 
 import com.speedcubers.speedcubing.entity.*;
 import com.speedcubers.speedcubing.repository.*;
+import org.apache.el.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,10 +39,7 @@ public class CompetitionController {
     }
 
     @PostMapping("/competitions")
-    public String createCompetition(@RequestParam String name,
-                                    @RequestParam LocalDate date,
-                                    @RequestParam String location,
-                                    @RequestParam LocalDate endDate) {
+    public String createCompetition(@RequestParam String name,@RequestParam LocalDate date,@RequestParam String location,@RequestParam LocalDate endDate) {
         competitionRepository.save(Competition.builder()
                 .name(name).date(date).location(location).endDate(endDate).build());
         return "redirect:/competitions";
@@ -96,10 +94,7 @@ public class CompetitionController {
     // ---- Rounds within competition ----
 
     @PostMapping("/competitions/{id}/add-round")
-    public String addRoundToCompetition(@PathVariable Long id,
-                                        @RequestParam Long categoryId,
-                                        @RequestParam String name,
-                                        @RequestParam int roundNumber) {
+    public String addRoundToCompetition(@PathVariable Long id,@RequestParam Long categoryId,@RequestParam String name,@RequestParam int roundNumber) {
         roundRepository.save(Round.builder()
                 .name(name)
                 .roundNumber(roundNumber)

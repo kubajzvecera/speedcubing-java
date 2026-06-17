@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class CompetitorController {
@@ -42,11 +43,7 @@ public class CompetitorController {
     }
 
     @PostMapping("/competitors")
-    public String addCompetitor(@RequestParam String firstName,
-                                @RequestParam String lastName,
-                                @RequestParam(required = false) String email,
-                                @RequestParam LocalDate birthDate,
-                                @RequestParam(required = false) String country) {
+    public String addCompetitor(@RequestParam String firstName,@RequestParam String lastName,@RequestParam String email,@RequestParam LocalDate birthDate,@RequestParam String country) {
         competitorRepository.save(Competitor.builder()
                 .firstName(firstName).lastName(lastName)
                 .email(email).birthDate(birthDate).country(country)
@@ -59,85 +56,57 @@ public class CompetitorController {
         competitorRepository.deleteById(id);
         return "redirect:/competitors";
     }
-
     @GetMapping("/competitors/{id}")
     public String competitorDetail(@PathVariable Long id, Model model) {
         Competitor competitor = competitorRepository.findById(id).orElse(null);
         if (competitor == null) return "redirect:/competitors";
         model.addAttribute("competitor", competitor);
-        List<Registration> registrations = registrationRepository.findByCompetitorId(id);
-        Map<Competition, List<Registration>> regsByComp = new LinkedHashMap<>();
-        for (Registration reg : registrations) {
-            regsByComp.computeIfAbsent(reg.getCompetition(), k -> new ArrayList<>()).add(reg);
-        }
-        model.addAttribute("regsByComp", regsByComp);
-        List<Solve> allSolves = solveRepository.findByCompetitorId(id);
-        List<Result> allResults = resultRepository.findByCompetitorId(id);
-        model.addAttribute("results", allResults);
 
-        List<Long> registeredIds = registrations.stream()
-                .map(r -> r.getCompetition().getId()).toList();
-        List<Competition> allCompetitions = competitionRepository.findAll();
-        List<Competition> available = allCompetitions.stream()
-                .filter(c -> !registeredIds.contains(c.getId()))
-                .filter(c -> !c.getCategories().isEmpty())
-                .toList();
+        model.addAttribute("regsByComp", registrationRepository.findByCompetitorId(id).stream()
+                .collect(Collectors.groupingBy(Registration::getCompetition, LinkedHashMap::new, Collectors.toList())));
+        model.addAttribute("results", resultRepository.findByCompetitorId(id));
+
+        List<Competition> available = competitionRepository.findAvailableForCompetitor(id);
         model.addAttribute("availableCompetitions", available);
         model.addAttribute("allCategories", categoryRepository.findAll());
+        model.addAttribute("competitionCategories", available.stream()
+                .collect(Collectors.toMap(Competition::getId,
+                    c -> c.getCategories().stream().map(Category::getId).toList())));
 
-        Map<Long, List<Long>> competitionCategories = new HashMap<>();
-        for (Competition c : allCompetitions) {
-            competitionCategories.put(c.getId(),
-                c.getCategories().stream().map(Category::getId).toList());
-        }
-        model.addAttribute("competitionCategories", competitionCategories);
+        Map<String, Integer> bestSingleMap = solveRepository.findBestSingleByCategory(id).stream()
+                .collect(Collectors.toMap(r -> (String) r[0], r -> ((Number) r[1]).intValue()));
+        Map<String, Double> bestAo5Map = resultRepository.findBestAo5ByCategory(id).stream()
+                .collect(Collectors.toMap(r -> (String) r[0], r -> ((Number) r[1]).doubleValue()));
 
-        List<String> categories = allSolves.stream()
-                .map(s -> s.getRound().getCategory().getName())
-                .distinct().sorted().toList();
-        List<Map<String, Object>> categoryStats = new ArrayList<>();
-        for (String cat : categories) {
-            Map<String, Object> stat = new HashMap<>();
-            stat.put("categoryName", cat);
-            OptionalInt bestSingleOpt = allSolves.stream()
-                    .filter(s -> s.getRound().getCategory().getName().equals(cat) && !"DNF".equals(s.getPenalty()))
-                    .mapToInt(Solve::getTimeMs).min();
-            stat.put("bestSingle", bestSingleOpt.isPresent() ? bestSingleOpt.getAsInt() : null);
-            OptionalDouble bestAo5Opt = allResults.stream()
-                    .filter(r -> r.getRound().getCategory().getName().equals(cat))
-                    .mapToDouble(Result::getAverageTime).min();
-            stat.put("bestAo5", bestAo5Opt.isPresent() ? bestAo5Opt.getAsDouble() : null);
-            categoryStats.add(stat);
-        }
-        model.addAttribute("categoryStats", categoryStats);
+        Set<String> catNames = new TreeSet<>(bestSingleMap.keySet());
+        catNames.addAll(bestAo5Map.keySet());
+        model.addAttribute("categoryStats", catNames.stream()
+                .map(c -> Map.of("categoryName", c, "bestSingle", bestSingleMap.get(c), "bestAo5", bestAo5Map.get(c)))
+                .toList());
         return "competitor-detail";
     }
 
     // ---- Registration ----
 
     @PostMapping("/competitors/{id}/register")
-    public String registerCompetitor(@PathVariable Long id,
-                                     @RequestParam Long competitionId,
-                                     @RequestParam List<Long> categoryIds) {
+    public String registerCompetitor(@PathVariable Long id,@RequestParam Long competitionId,@RequestParam List<Long> categoryIds) {
         Competition competition = competitionRepository.findById(competitionId).orElse(null);
         Competitor competitor = competitorRepository.findById(id).orElse(null);
         if (competition == null || competitor == null) return "redirect:/competitors";
         var now = LocalDateTime.now();
-        for (Long catId : categoryIds) {
-            Category category = categoryRepository.findById(catId).orElse(null);
-            if (category == null) continue;
-            registrationRepository.save(Registration.builder()
+        List<Registration> registrations = categoryRepository.findAllById(categoryIds).stream()
+                .map(cat -> Registration.builder()
                     .competition(competition).competitor(competitor)
-                    .category(category).registrationDatetime(now).build());
-        }
+                    .category(cat).registrationDatetime(now).build())
+                .toList();
+        registrationRepository.saveAll(registrations);
         return "redirect:/competitors/" + id;
     }
 
     // ---- Results ----
 
     @GetMapping("/results/{roundId}")
-    public String results(@PathVariable Long roundId,
-                          @RequestParam Long competitionId, Model model) {
+    public String results(@PathVariable Long roundId,@RequestParam Long competitionId, Model model) {
         Round round = roundRepository.findById(roundId).orElse(null);
         if (round == null) return "redirect:/competitions";
         model.addAttribute("round", round);
@@ -147,9 +116,7 @@ public class CompetitorController {
     }
 
     @PostMapping("/results/generate/{roundId}")
-    public String generateResults(@PathVariable Long roundId,
-                                  @RequestParam Long competitionId,
-                                  RedirectAttributes redirectAttributes) {
+    public String generateResults(@PathVariable Long roundId,@RequestParam Long competitionId,RedirectAttributes redirectAttributes) {
         Round round = roundRepository.findById(roundId).orElse(null);
         if (round == null) return "redirect:/competitions";
         List<Result> generated = resultService.generateResults(round);

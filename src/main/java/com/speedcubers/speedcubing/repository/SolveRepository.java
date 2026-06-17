@@ -18,4 +18,9 @@ public interface SolveRepository extends JpaRepository<Solve, Long> {
 
     @Query("SELECT s FROM Solve s WHERE s.competitor.id = :competitorId")
     List<Solve> findByCompetitorId(@Param("competitorId") Long competitorId);
+
+    @Query("SELECT c.name, MIN(s.timeMs) FROM Solve s JOIN s.round r JOIN r.category c " +
+           "WHERE s.competitor.id = :competitorId AND (s.penalty IS NULL OR s.penalty <> 'DNF') " +
+           "GROUP BY c.name ORDER BY c.name")
+    List<Object[]> findBestSingleByCategory(@Param("competitorId") Long competitorId);
 }
