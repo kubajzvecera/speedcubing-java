@@ -47,8 +47,8 @@
         </div>
     </form>
 
-    <div th:unless="${#lists.isEmpty(competition.categories)}">
-        <div th:each="cat : ${competition.categories}" class="card mb-3">
+    <div th:unless="${#lists.isEmpty(categories)}">
+        <div th:each="cat : ${categories}" class="card mb-3">
             <div class="card-header">
                 <strong th:text="${cat.name}">category</strong>
             </div>
@@ -99,7 +99,7 @@
             </div>
         </div>
     </div>
-    <p th:if="${#lists.isEmpty(competition.categories)}" class="text-muted">No categories yet.</p>
+    <p th:if="${#lists.isEmpty(categories)}" class="text-muted">No categories yet.</p>
 
 </div>
 </body>

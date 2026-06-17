@@ -1,31 +1,31 @@
-MERGE INTO competitor (id, first_name, last_name, email, birth_date, country) KEY (id) VALUES (1, 'Jan', 'Novák', 'jan.novak@email.cz', '2000-03-15', 'Czechia');
-MERGE INTO competitor (id, first_name, last_name, email, birth_date, country) KEY (id) VALUES (2, 'Petr', 'Svoboda', 'petr.svoboda@email.cz', '1998-07-22', 'Czechia');
-MERGE INTO competitor (id, first_name, last_name, email, birth_date, country) KEY (id) VALUES (3, 'Lukas', 'Werner', 'lukas.werner@email.de', '2001-11-08', 'Germany');
-MERGE INTO competitor (id, first_name, last_name, email, birth_date, country) KEY (id) VALUES (4, 'Mateusz', 'Kowalski', 'mateusz.kowalski@email.pl', '1999-05-30', 'Poland');
-MERGE INTO competitor (id, first_name, last_name, email, birth_date, country) KEY (id) VALUES (5, 'Samuel', 'Jones', 'sam.jones@email.uk', '2002-01-14', 'UK');
-MERGE INTO competitor (id, first_name, last_name, email, birth_date, country) KEY (id) VALUES (6, 'Tom', 'Dnfman', 'tom@dnf.com', '1995-06-01', 'Czechia');
+MERGE INTO competitor (id, first_name, last_name, email, birth_date, country) KEY (id) VALUES (1, 'Jan', 'Novák', 'jan.novak@email.cz', '2000-01-15', 'Czechia');
+MERGE INTO competitor (id, first_name, last_name, email, birth_date, country) KEY (id) VALUES (2, 'Petr', 'Svoboda', 'petr.svoboda@email.cz', '1999-05-20', 'Czechia');
+MERGE INTO competitor (id, first_name, last_name, email, birth_date, country) KEY (id) VALUES (3, 'Lukas', 'Werner', 'lukas.werner@email.de', '2001-03-10', 'Germany');
+MERGE INTO competitor (id, first_name, last_name, email, birth_date, country) KEY (id) VALUES (4, 'Mateusz', 'Kowalski', 'mateusz.kowalski@email.pl', '1998-11-25', 'Poland');
+MERGE INTO competitor (id, first_name, last_name, email, birth_date, country) KEY (id) VALUES (5, 'Samuel', 'Jones', 'sam.jones@email.uk', '2002-07-08', 'UK');
+MERGE INTO competitor (id, first_name, last_name, email, birth_date, country) KEY (id) VALUES (6, 'Tom', 'Dnfman', 'tom@dnf.com', '1995-12-01', 'Czechia');
 
 MERGE INTO category (id, name) KEY (id) VALUES (1, '3x3x3');
 MERGE INTO category (id, name) KEY (id) VALUES (2, '2x2x2');
 MERGE INTO category (id, name) KEY (id) VALUES (3, '4x4x4');
 
-MERGE INTO competition (id, name, date, location, end_date) KEY (id) VALUES (1, 'Czech Open 2025', '2025-06-15', 'Prague', '2025-06-16');
-MERGE INTO competition (id, name, date, location, end_date) KEY (id) VALUES (2, 'Summer Cubing 2025', '2025-08-20', 'Brno', NULL);
+MERGE INTO competition (id, name, date, location, end_date) KEY (id) VALUES (1, 'Czech Open 2025', '2025-06-15', 'Prague', '2025-06-17');
+MERGE INTO competition (id, name, date, location, end_date) KEY (id) VALUES (2, 'Summer Cubing 2025', '2025-08-10', 'Brno', '2025-08-12');
 
 MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (1, 'First Round', 1, 1, 1);
 MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (2, 'Final', 2, 1, 1);
 MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (3, 'First Round', 1, 2, 1);
 MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (4, 'First Round', 1, 3, 1);
 
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (1, 1, 1, 1, '2025-06-01T10:00:00');
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (2, 1, 1, 2, '2025-06-01T10:00:00');
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (3, 1, 2, 1, '2025-06-01T10:05:00');
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (4, 1, 3, 1, '2025-06-01T10:10:00');
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (5, 1, 3, 2, '2025-06-01T10:10:00');
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (6, 2, 3, 1, '2025-08-01T09:00:00');
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (7, 2, 4, 3, '2025-08-01T09:05:00');
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (8, 2, 5, 1, '2025-08-01T09:10:00');
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (9, 2, 5, 3, '2025-08-01T09:10:00');
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (1, 1, 1, 1);
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (2, 1, 1, 2);
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (3, 1, 2, 1);
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (4, 1, 3, 1);
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (5, 1, 3, 2);
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (6, 2, 3, 1);
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (7, 2, 4, 3);
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (8, 2, 5, 1);
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (9, 2, 5, 3);
 
 -- Solves for Round 1 (3x3x3 First Round) - competitors 1,2,3 each 5 solves
 MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (1, 1, 5230, NULL, 1, 1);
@@ -74,7 +74,7 @@ MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id)
 MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (40, 5, 1960, NULL, 3, 3);
 
 -- Third competition with more data
-MERGE INTO competition (id, name, date, location, end_date) KEY (id) VALUES (3, 'Winter Cubing 2025', '2025-12-06', 'Ostrava', '2025-12-07');
+MERGE INTO competition (id, name, date, location, end_date) KEY (id) VALUES (3, 'Winter Cubing 2025', '2025-12-20', 'Ostrava', '2025-12-22');
 
 -- More rounds for 2x2x2 and 4x4x4
 MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (5, 'Final', 2, 2, 1);
@@ -103,11 +103,11 @@ MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) 
 MERGE INTO round (id, name, round_number, category_id, competition_id) KEY (id) VALUES (8, 'Semi-Final', 2, 1, 3);
 
 -- Register more competitors for competition 3
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (10, 3, 1, 1, '2025-11-01T10:00:00');
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (11, 3, 1, 2, '2025-11-01T10:00:00');
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (12, 3, 2, 1, '2025-11-01T10:05:00');
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (13, 3, 4, 1, '2025-11-01T10:10:00');
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (14, 3, 4, 3, '2025-11-01T10:10:00');
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (10, 3, 1, 1);
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (11, 3, 1, 2);
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (12, 3, 2, 1);
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (13, 3, 4, 1);
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (14, 3, 4, 3);
 
 -- Solves for Round 5 (2x2x2 Final) - competitors 1,3 each 5 solves
 MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (51, 1, 2210, NULL, 1, 5);
@@ -128,7 +128,7 @@ MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id)
 MERGE INTO solve (id, attempt_number, time_ms, penalty, competitor_id, round_id) KEY (id) VALUES (65, 5, 5000, 'DNF', 6, 1);
 
 -- Register Tom Dnfman in competition 1 (3x3x3 First Round)
-MERGE INTO registration (id, competition_id, competitor_id, category_id, registration_datetime) KEY (id) VALUES (15, 1, 6, 1, '2025-06-01T11:00:00');
+MERGE INTO registration (id, competition_id, competitor_id, category_id) KEY (id) VALUES (15, 1, 6, 1);
 
 ALTER TABLE competitor ALTER COLUMN id RESTART WITH (SELECT COALESCE(MAX(id), 0) + 1 FROM competitor);
 ALTER TABLE category ALTER COLUMN id RESTART WITH (SELECT COALESCE(MAX(id), 0) + 1 FROM category);

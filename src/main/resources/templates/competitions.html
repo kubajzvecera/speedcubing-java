@@ -46,7 +46,7 @@
             <td th:text="${c.date}">date</td>
             <td th:text="${c.location}">location</td>
             <td>
-                <span th:each="cat : ${c.categories}" th:text="${cat.name} + ' '" class="badge bg-info me-1"></span>
+                <span th:each="cat : ${competitionCategories.get(c.id)}" th:text="${cat.name} + ' '" class="badge bg-info me-1"></span>
             </td>
             <td><a th:href="@{/competitions/{id}(id=${c.id})}" class="btn btn-sm btn-info">Detail</a></td>
             <td>

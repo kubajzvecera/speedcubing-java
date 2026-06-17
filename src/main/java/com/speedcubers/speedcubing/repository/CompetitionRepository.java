@@ -13,4 +13,5 @@ public interface CompetitionRepository extends JpaRepository<Competition, Long> 
            "(SELECT r.competition.id FROM Registration r WHERE r.competitor.id = :competitorId) " +
            "AND c.id IN (SELECT DISTINCT r2.competition.id FROM Round r2)")
     List<Competition> findAvailableForCompetitor(@Param("competitorId") Long competitorId);
+
 }

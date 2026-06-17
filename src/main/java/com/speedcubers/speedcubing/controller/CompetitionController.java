@@ -2,7 +2,7 @@ package com.speedcubers.speedcubing.controller;
 
 import com.speedcubers.speedcubing.entity.*;
 import com.speedcubers.speedcubing.repository.*;
-import org.apache.el.stream.Stream;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,6 +35,18 @@ public class CompetitionController {
     public String competitions(Model model) {
         model.addAttribute("competitions", competitionRepository.findAll());
         model.addAttribute("allCategories", categoryRepository.findAll());
+
+        Map<Long, List<Category>> competitionCategories = new LinkedHashMap<>();
+        Map<Long, Set<Long>> seenCategoryIds = new HashMap<>();
+        for (Round r : roundRepository.findAllRoundsWithCategory()) {
+            Long compId = r.getCompetition().getId();
+            Category cat = r.getCategory();
+            seenCategoryIds.computeIfAbsent(compId, k -> new HashSet<>());
+            if (seenCategoryIds.get(compId).add(cat.getId())) {
+                competitionCategories.computeIfAbsent(compId, k -> new ArrayList<>()).add(cat);
+            }
+        }
+        model.addAttribute("competitionCategories", competitionCategories);
         return "competitions";
     }
 
@@ -60,6 +72,12 @@ public class CompetitionController {
         Map<Long, List<Result>> resultsByRound = allResults.stream()
                 .collect(Collectors.groupingBy(r -> r.getRound().getId()));
 
+        List<Category> categories = allRounds.stream()
+                .map(Round::getCategory)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        model.addAttribute("categories", categories);
         model.addAttribute("roundsByCategory", roundsByCategory);
         model.addAttribute("resultsByRound", resultsByRound);
         return "competition-detail";

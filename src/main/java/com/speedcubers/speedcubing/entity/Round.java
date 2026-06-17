@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.List;
 
@@ -23,9 +25,11 @@ public class Round {
     private int roundNumber;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Category category;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Competition competition;
 
     @OneToMany(mappedBy = Solve_.ROUND, cascade = CascadeType.ALL)

@@ -1,4 +1,4 @@
-package com.speedcubers.speedcubing.util;
+package com.speedcubers.speedcubing.service;
 
 import org.springframework.stereotype.Component;
 

@@ -1,5 +1,6 @@
 package com.speedcubers.speedcubing.entity;
 
+import com.speedcubers.speedcubing.entity.Registration_;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Data
@@ -26,18 +26,9 @@ public class Competition {
     private String location;
     private LocalDate endDate;
 
-    public List<Category> getCategories() {
-        if (rounds == null) return List.of();
-        return rounds.stream()
-            .map(Round::getCategory)
-            .filter(Objects::nonNull)
-            .distinct()
-            .toList();
-    }
-
     @OneToMany(mappedBy = Registration_.COMPETITION, cascade = CascadeType.ALL)
     private List<Registration> registrations;
 
-    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = Round_.COMPETITION, cascade = CascadeType.ALL)
     private List<Round> rounds;
 }

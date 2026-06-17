@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 public class CompetitorController {
@@ -62,27 +60,82 @@ public class CompetitorController {
         if (competitor == null) return "redirect:/competitors";
         model.addAttribute("competitor", competitor);
 
-        model.addAttribute("regsByComp", registrationRepository.findByCompetitorId(id).stream()
-                .collect(Collectors.groupingBy(Registration::getCompetition, LinkedHashMap::new, Collectors.toList())));
-        model.addAttribute("results", resultRepository.findByCompetitorId(id));
+        List<Solve> allSolves = solveRepository.findByCompetitorId(id);
+        List<Result> allResults = resultRepository.findByCompetitorId(id);
 
+        //collects all registrations for competitions
+        List<Registration> registrations = registrationRepository.findByCompetitorId(id);
+        Map<Competition, List<Registration>> regsByComp = new LinkedHashMap<>();
+        for (Registration reg : registrations) {
+            regsByComp.computeIfAbsent(reg.getCompetition(), k -> new ArrayList<>()).add(reg);
+        }
+        model.addAttribute("regsByComp", regsByComp);
+        model.addAttribute("results", allResults);
+
+        //competitions where he hasn't registered
         List<Competition> available = competitionRepository.findAvailableForCompetitor(id);
         model.addAttribute("availableCompetitions", available);
         model.addAttribute("allCategories", categoryRepository.findAll());
-        model.addAttribute("competitionCategories", available.stream()
-                .collect(Collectors.toMap(Competition::getId,
-                    c -> c.getCategories().stream().map(Category::getId).toList())));
 
-        Map<String, Integer> bestSingleMap = solveRepository.findBestSingleByCategory(id).stream()
-                .collect(Collectors.toMap(r -> (String) r[0], r -> ((Number) r[1]).intValue()));
-        Map<String, Double> bestAo5Map = resultRepository.findBestAo5ByCategory(id).stream()
-                .collect(Collectors.toMap(r -> (String) r[0], r -> ((Number) r[1]).doubleValue()));
 
-        Set<String> catNames = new TreeSet<>(bestSingleMap.keySet());
-        catNames.addAll(bestAo5Map.keySet());
-        model.addAttribute("categoryStats", catNames.stream()
-                .map(c -> Map.of("categoryName", c, "bestSingle", bestSingleMap.get(c), "bestAo5", bestAo5Map.get(c)))
-                .toList());
+        Set<Long> availableIds = new HashSet<>();
+        for (Competition c : available) {
+            availableIds.add(c.getId());
+        }
+        //all competition categories [competition_id : [category_id]]
+        Map<Long, List<Long>> competitionCategories = new LinkedHashMap<>();
+        Map<Long, Set<Long>> seenCategoryIds = new HashMap<>();
+        for (Round r : roundRepository.findAllRoundsWithCategory()) {
+            Long compId = r.getCompetition().getId();
+            if (!availableIds.contains(compId)) {
+                continue;
+            }
+            seenCategoryIds.computeIfAbsent(compId, k -> new HashSet<>());
+            if (seenCategoryIds.get(compId).add(r.getCategory().getId())) {
+                competitionCategories.computeIfAbsent(compId, k -> new ArrayList<>()).add(r.getCategory().getId());
+            }
+        }
+        model.addAttribute("competitionCategories", competitionCategories);
+
+        //best times at each category solver attempted
+
+        Map<String, Integer> bestSingleMap = new LinkedHashMap<>();
+        for (Solve solve : allSolves) {
+            //skip worst solves
+            if ("DNF".equals(solve.getPenalty())) continue;
+            String cat = solve.getRound().getCategory().getName();
+            Integer current = bestSingleMap.get(cat);
+            if (current == null || solve.getTimeMs() < current) {
+                bestSingleMap.put(cat, solve.getTimeMs());
+            }
+        }
+        //best times in ao5 in results
+        Map<String, Double> bestAo5Map = new LinkedHashMap<>();
+        for (Result result : allResults) {
+            String cat = result.getRound().getCategory().getName();
+            Double current = bestAo5Map.get(cat);
+            if (current == null || result.getAverageTime() < current) {
+                bestAo5Map.put(cat, result.getAverageTime());
+            }
+        }
+        //set of categories solver attempted
+        Set<String> catNames = new HashSet<>();
+
+        catNames.addAll(bestSingleMap.keySet()); // {category_id : time_ms} takes category_id
+        catNames.addAll(bestAo5Map.keySet()); // same
+
+        List<String> sortedCats = new ArrayList<>(catNames);
+        Collections.sort(sortedCats);
+
+        List<Map<String, Object>> categoryStats = new ArrayList<>();
+        for (String cat : sortedCats) {
+            Map<String, Object> stat = new HashMap<>();
+            stat.put("categoryName", cat);
+            stat.put("bestSingle", bestSingleMap.get(cat));
+            stat.put("bestAo5", bestAo5Map.get(cat));
+            categoryStats.add(stat);
+        }
+        model.addAttribute("categoryStats", categoryStats);
         return "competitor-detail";
     }
 
@@ -93,11 +146,10 @@ public class CompetitorController {
         Competition competition = competitionRepository.findById(competitionId).orElse(null);
         Competitor competitor = competitorRepository.findById(id).orElse(null);
         if (competition == null || competitor == null) return "redirect:/competitors";
-        var now = LocalDateTime.now();
         List<Registration> registrations = categoryRepository.findAllById(categoryIds).stream()
                 .map(cat -> Registration.builder()
                     .competition(competition).competitor(competitor)
-                    .category(cat).registrationDatetime(now).build())
+                    .category(cat).build())
                 .toList();
         registrationRepository.saveAll(registrations);
         return "redirect:/competitors/" + id;

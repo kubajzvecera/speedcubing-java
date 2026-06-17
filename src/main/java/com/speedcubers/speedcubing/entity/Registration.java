@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Data
@@ -19,14 +19,15 @@ public class Registration {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime registrationDatetime;
-
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Competition competition;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Competitor competitor;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Category category;
 }
