@@ -64,7 +64,14 @@ public class ResultService {
 
             Collections.sort(times);
             int bestTime = times.getFirst();
-            int sum = times.get(1) + times.get(2) + times.get(3);
+            int sum;
+            if (times.size() >= 5) {
+                sum = times.get(1) + times.get(2) + times.get(3);
+            } else if (times.size() == 4) {
+                sum = times.get(1) + times.get(2) + times.get(3);
+            } else {
+                sum = times.get(0) + times.get(1) + times.get(2);
+            }
             double avg = Math.round(sum / 3.0 * 100.0) / 100.0;
 
             Result result = new Result();
