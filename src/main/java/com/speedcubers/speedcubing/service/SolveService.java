@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class SolveService {
@@ -30,7 +32,11 @@ public class SolveService {
         List<Solve> existing = solveRepository.findByRoundAndCompetitorId(round, competitorId);
         if (existing.size() >= 5) return "Maximum 5 solves per competitor per round reached.";
 
-        int attemptNumber = existing.size() + 1;
+        Set<Integer> used = existing.stream().map(Solve::getAttemptNumber).collect(Collectors.toSet());
+        int attemptNumber = 1;
+        while (used.contains(attemptNumber)) {
+            attemptNumber++;
+        }
 
         Solve solve = Solve.builder()
                 .attemptNumber(attemptNumber)
