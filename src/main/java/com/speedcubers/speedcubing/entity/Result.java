@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Data
@@ -22,10 +20,8 @@ public class Result {
     private int rank;
 
     @ManyToOne
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Competitor competitor;
 
     @ManyToOne
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Round round;
 }

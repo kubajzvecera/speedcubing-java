@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Data
@@ -25,10 +23,8 @@ public class Solve {
     private String penalty;
 
     @ManyToOne
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Competitor competitor;
 
     @ManyToOne
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Round round;
 }
