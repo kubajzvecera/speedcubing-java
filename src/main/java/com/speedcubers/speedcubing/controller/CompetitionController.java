@@ -41,9 +41,14 @@ public class CompetitionController {
         for (Round r : roundRepository.findAllRoundsWithCategory()) {
             Long compId = r.getCompetition().getId();
             Category cat = r.getCategory();
-            seenCategoryIds.computeIfAbsent(compId, k -> new HashSet<>());
+            if (!seenCategoryIds.containsKey(compId)) {
+                seenCategoryIds.put(compId, new HashSet<>());
+            }
             if (seenCategoryIds.get(compId).add(cat.getId())) {
-                competitionCategories.computeIfAbsent(compId, k -> new ArrayList<>()).add(cat);
+                if (!competitionCategories.containsKey(compId)) {
+                    competitionCategories.put(compId, new ArrayList<>());
+                }
+                competitionCategories.get(compId).add(cat);
             }
         }
         model.addAttribute("competitionCategories", competitionCategories);
@@ -87,26 +92,6 @@ public class CompetitionController {
     public String deleteCompetition(@PathVariable Long id) {
         competitionRepository.deleteById(id);
         return "redirect:/competitions";
-    }
-
-    // ---- Categories ----
-
-    @GetMapping("/categories")
-    public String categories(Model model) {
-        model.addAttribute("categories", categoryRepository.findAll());
-        return "categories";
-    }
-
-    @PostMapping("/categories")
-    public String addCategory(@RequestParam String name) {
-        categoryRepository.save(Category.builder().name(name).build());
-        return "redirect:/categories";
-    }
-
-    @PostMapping("/categories/{id}/delete")
-    public String deleteCategory(@PathVariable Long id) {
-        categoryRepository.deleteById(id);
-        return "redirect:/categories";
     }
 
     // ---- Rounds within competition ----

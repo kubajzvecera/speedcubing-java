@@ -5,6 +5,7 @@ import com.speedcubers.speedcubing.repository.*;
 import com.speedcubers.speedcubing.service.SolveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -54,11 +55,14 @@ public class RoundController {
     }
 
     @PostMapping("/solves/{id}/delete")
+    @Transactional
     public String deleteSolve(@PathVariable Long id,
                               @RequestParam Long competitionId) {
         Solve solve = solveRepository.findById(id).orElse(null);
         if (solve != null) {
-            Long roundId = solve.getRound().getId();
+            Round round = solve.getRound();
+            Long roundId = round.getId();
+            resultRepository.deleteByRound(round);
             solveRepository.deleteById(id);
             return "redirect:/rounds/" + roundId + "?competitionId=" + competitionId;
         }

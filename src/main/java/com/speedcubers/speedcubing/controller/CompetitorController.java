@@ -67,7 +67,10 @@ public class CompetitorController {
         List<Registration> registrations = registrationRepository.findByCompetitorId(id);
         Map<Competition, List<Registration>> regsByComp = new LinkedHashMap<>();
         for (Registration reg : registrations) {
-            regsByComp.computeIfAbsent(reg.getCompetition(), k -> new ArrayList<>()).add(reg);
+            if (!regsByComp.containsKey(reg.getCompetition())) {
+                regsByComp.put(reg.getCompetition(), new ArrayList<>());
+            }
+            regsByComp.get(reg.getCompetition()).add(reg);
         }
         model.addAttribute("regsByComp", regsByComp);
         model.addAttribute("results", allResults);
@@ -90,9 +93,14 @@ public class CompetitorController {
             if (!availableIds.contains(compId)) {
                 continue;
             }
-            seenCategoryIds.computeIfAbsent(compId, k -> new HashSet<>());
+            if (!seenCategoryIds.containsKey(compId)) {
+                seenCategoryIds.put(compId, new HashSet<>());
+            }
             if (seenCategoryIds.get(compId).add(r.getCategory().getId())) {
-                competitionCategories.computeIfAbsent(compId, k -> new ArrayList<>()).add(r.getCategory().getId());
+                if (!competitionCategories.containsKey(compId)) {
+                    competitionCategories.put(compId, new ArrayList<>());
+                }
+                competitionCategories.get(compId).add(r.getCategory().getId());
             }
         }
         model.addAttribute("competitionCategories", competitionCategories);
